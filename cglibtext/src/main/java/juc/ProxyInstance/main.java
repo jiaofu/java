@@ -1,4 +1,4 @@
-package jucPackage;
+package juc.ProxyInstance;
 
 public class main {
 
@@ -6,9 +6,9 @@ public class main {
 		// TODO Auto-generated method stub
 		System.out.println("hello Wolrd");
 		System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
-		UserService service=new UserServiceImpl();
+		UserServiceProxy service=new UserServiceImpl();
 		MyInvocationHandler handler=new MyInvocationHandler(service);
-		UserService proxy=(UserService) handler.getProxy();
+		UserServiceProxy proxy=(UserServiceProxy) handler.getProxy();
 		proxy.add();
 	}
 

@@ -1,4 +1,4 @@
-package jucPackage;
+package juc.ProxyInstance;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -12,7 +12,6 @@ public class MyInvocationHandler implements InvocationHandler {
 		super();
 		this.target=target;
 	}
-	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		// TODO Auto-generated method stub
        // PerformanceMonior.begin(target.getClass().getName()+"."+method.getName());

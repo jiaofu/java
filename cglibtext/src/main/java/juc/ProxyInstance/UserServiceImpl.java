@@ -1,8 +1,7 @@
-package jucPackage;
+package juc.ProxyInstance;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserServiceProxy {
 
-	@Override
 	public void add() {
 		// TODO Auto-generated method stub
 		System.out.println("--------------------add----------------------");
