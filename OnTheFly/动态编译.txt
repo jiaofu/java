@@ -1,0 +1,12 @@
+出现一个奇怪的现象：在Eclipse IDE中测试完全没有问题，部署到Web 服务器中从前台界面跑起来，就会卡着不动，也没有报错，跟踪了一下，找到ToolProvider.getSystemJavaCompiler()为null
+
+
+上网搜了下，直接说就是找不到jdk lib目录下tools.jar文件，没法编译
+
+之前我设置JAVA_HOME在java\jdk
+更改为Java\jre，同时将jdk\lib下将tools.jar复制到jre\lib下
+
+OK
+
+编译通过
+但是发现在IDEA 没有编译通过
