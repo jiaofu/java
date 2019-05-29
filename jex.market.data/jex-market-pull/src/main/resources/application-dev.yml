@@ -1,0 +1,58 @@
+#开发环境
+spring:
+  application:
+    name: market-client
+  datasource:
+    db1:
+      jdbc-url: jdbc:mysql://192.168.0.3:3306/coin?autoReconnect=true&characterEncoding=utf-8&useSSL=false&serverTimezone = GMT
+      username: digi
+      password: digi123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      idle-timeout: 600000
+      maximum-pool-size: 100
+      max-lifetime: 1800000
+      minimum-idle: 5
+    db2:
+      jdbc-url: jdbc:mysql://192.168.0.3:3306/coin?autoReconnect=true&characterEncoding=utf-8&useSSL=false&serverTimezone = GMT
+      username: digi
+      password: digi123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      idle-timeout: 600000
+      maximum-pool-size: 100
+      max-lifetime: 1800000
+      minimum-idle: 5
+  redis:
+    # Redis数据库索引（默认为0）,如果设置为1，那么存入的key-value都存放在select 1中
+    database: 0
+    host: 192.168.0.2
+    port: 6379
+    password:
+    pool:
+      #连接池最大连接数（使用负值表示没有限制）
+      max-active: 1024
+      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      max-wait: 30000
+      # 连接池中的最大空闲连接
+      max-idle: 1024
+      # 连接池中的最小空闲连接
+      min-idle: 200
+    # 连接超时时间（毫秒）
+    timeout: 60000
+
+#mybatis驼峰字段映射
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+logging:
+  level:
+    root: info
+    com:
+      company: debug
+      com.jex.outside.dao.mapper: trace
+  path: ../logs/api-log
+
+
+
+
