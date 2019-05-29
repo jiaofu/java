@@ -3,12 +3,16 @@ package com.jex.market.quartz;
 
 import com.jex.market.dao.enums.ExchangeEnum;
 import com.jex.market.dto.JobDataInfoDTO;
+import com.jex.market.job.BinanceWsJob;
 import com.jex.market.job.PriceJob;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,9 +30,29 @@ public class QuartzConfiguration {
 
     public static Map<String, JobDataInfoDTO> jobDetailMap = new HashMap<>();
 
+    @Autowired
+    private JobFactory jobFactory;
+
+    @Bean
+    public SchedulerFactoryBean schedulerFactoryBean() {
+        SchedulerFactoryBean factory = new SchedulerFactoryBean();
+        factory.setOverwriteExistingJobs(true);
+        // 延时启动
+        factory.setStartupDelay(20);
+        // 自定义Job Factory，用于Spring注入
+        factory.setJobFactory(jobFactory);
+
+         return factory;
+    }
+
+
+
+
+
     @Bean
     public void getJobs(){
-        JobDetail jobPrice = newJob(PriceJob.class) //定义Job类为HelloQuartz类，这是真正的执行逻辑所在
+
+        JobDetail jobPrice = newJob(BinanceWsJob.class) //定义Job类为HelloQuartz类，这是真正的执行逻辑所在
                 .withIdentity(ExchangeEnum.binance.getDesc(), PriceJob.class.getSimpleName()) //定义name/group
                 .usingJobData(ExchangeEnum.binance.getDesc(), PriceJob.class.getSimpleName()) //定义属性
                 .build();
@@ -44,12 +68,19 @@ public class QuartzConfiguration {
 
 
     public Trigger getTrigger(){
-        Trigger trigger = newTrigger().withIdentity("trigger1", "group1") //定义name/group
+/*        Trigger trigger = newTrigger().withIdentity("trigger1", "group1") //定义name/group
                 // .startNow()//一旦加入scheduler，立即生效
                 .startAt(new Date())//设置触发开始的时间
                 .withSchedule(simpleSchedule() //使用SimpleTrigger
                         .withIntervalInSeconds(1) //每隔一秒执行一次
                         .repeatForever()) //一直执行，奔腾到老不停歇
+                .build();*/
+
+        Trigger trigger = newTrigger().withIdentity("trigger1", "group1") //定义name/group
+                // .startNow()//一旦加入scheduler，立即生效
+                .startAt(new Date())//设置触发开始的时间
+                .withSchedule(simpleSchedule() //使用SimpleTrigger
+                        .withRepeatCount(0))
                 .build();
         return trigger;
     }
@@ -58,7 +89,9 @@ public class QuartzConfiguration {
     public void CronJobTrigger() {
         try {
 
-            wapischeduler = StdSchedulerFactory.getDefaultScheduler();
+
+           // wapischeduler = StdSchedulerFactory.getDefaultScheduler();
+            wapischeduler = schedulerFactoryBean().getScheduler();
             getJobs();
             for(Map.Entry<String, JobDataInfoDTO> map: jobDetailMap.entrySet()){
                 //加入这个调度
