@@ -72,6 +72,10 @@ public class FirstController {
         BlockChain blockChain = BlockChain.getInstance();
         int index = blockChain.newTransactions(sender, recipient, amount);
 
+
+
+
+        
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("message", "Transaction will be added to Block " + index);
         return jsonObject;
