@@ -1,12 +1,16 @@
 package com.jex.market.job;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.jex.market.dto.KlinesDTO;
-import com.jex.market.dto.PriceDTO;
-import com.jex.market.dto.SymbolDTO;
+import com.jex.market.dto.*;
 import com.jex.market.util.StringUtil;
+import com.sun.org.apache.xerces.internal.xs.StringList;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,11 +48,8 @@ public class BinanceHandleWsResponseImpl implements HandleWsResponse {
     @Override
     public void handleKlines(JSONObject json) {
         String name = getSymbol(json,"kline");
-        if(StringUtil.isEmpty(name)){
-            return;
-        }
-        SymbolDTO dto = map.get(name);
-        if(dto == null){
+        SymbolDTO dto = null;
+        if(StringUtil.isEmpty(name) || (dto=map.get(name)) ==null ){
             return;
         }
         KlinesDTO klinesDTO = dto.getKlines();
@@ -87,18 +88,40 @@ public class BinanceHandleWsResponseImpl implements HandleWsResponse {
     @Override
     public void handeleDepth(JSONObject json) {
         String name = getSymbol(json,"depth");
-        if(StringUtil.isEmpty(name)){
+        SymbolDTO dto = null;
+        if(StringUtil.isEmpty(name) || (dto=map.get(name)) ==null ){
             return;
         }
+        DepthDTO depthDTO = dto.getDepth();
+        JSONObject data  = json.getJSONObject("data");
+        List<OrderBookEntryDTO> bids = depthList("bids",data);
+        List<OrderBookEntryDTO> asks = depthList("asks",data);
+        depthDTO.setAsks(asks);
+        depthDTO.setBids(bids);
+        return;
 
+    }
+    private  List<OrderBookEntryDTO> depthList(String name, JSONObject data){
+        JSONArray jsonArray =data.getJSONArray(name);
+        List<OrderBookEntryDTO> list = new ArrayList<>();
+        for(int i=0;i<jsonArray.size();i++){
+            OrderBookEntryDTO orderBookEntryDTO = new OrderBookEntryDTO();
+            JSONArray jsonchild =  (JSONArray)(jsonArray.get(0));
+            orderBookEntryDTO.setPrice( jsonchild.get(0).toString());
+            orderBookEntryDTO.setQty( jsonchild.get(1).toString());
+            list.add(orderBookEntryDTO);
+        }
+        return list;
     }
 
     @Override
     public void handleTrade(JSONObject json) {
         String name = getSymbol(json,"trade");
-        if(StringUtil.isEmpty(name)){
+        SymbolDTO dto = null;
+        if(StringUtil.isEmpty(name) || (dto=map.get(name)) ==null ){
             return;
         }
+
     }
 
     @Override
@@ -123,6 +146,20 @@ public class BinanceHandleWsResponseImpl implements HandleWsResponse {
             return split[0].toLowerCase();
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        List<String[]> strings = new ArrayList<>();
+        String[] str1 = new String[]{"a","b"};
+        String[] str2 = new String[]{"c","d"};
+        String[] str3 = new String[]{"3","f"};
+        strings.add(str1);
+        strings.add(str2);
+        strings.add(str3);
+       String jsonReuslt =  JSON.toJSONString(strings);
+       System.out.println(jsonReuslt);
+        JSONArray array = JSONArray.parseArray(jsonReuslt);
+      System.out.println(array);
     }
 
 

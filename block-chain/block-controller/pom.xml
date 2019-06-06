@@ -12,4 +12,11 @@
     <artifactId>block-controller</artifactId>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>com.shuiliu</groupId>
+            <artifactId>block-first</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
