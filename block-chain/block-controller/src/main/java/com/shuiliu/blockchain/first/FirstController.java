@@ -26,12 +26,28 @@ public class FirstController {
         return System.currentTimeMillis();
     }
 
+    /**
+     * 一致性共识算法，解决共识冲突，保证所有的节点都在同一条链上(最长链)
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
     @GetMapping("/nodes/resolve")
     public void resolve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BlockChain blockChain = BlockChain.getInstance();
         boolean flag = blockChain.resolveConflicts();
         System.out.println("是否解决一致性共识冲突：" + flag);
     }
+
+    /**
+     * 该Servlet用于输出整个区块链的数据(Json)
+     * @param req
+     * @param resp
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
     @GetMapping("/chain")
     public Map<String,Object> chain(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BlockChain blockChain = BlockChain.getInstance();
@@ -40,6 +56,15 @@ public class FirstController {
         response.put("blockLength",blockChain.getChain().size());
         return response;
     }
+
+    /**
+     * 该Servlet用于运行工作算法的证明来获得下一个证明，也就是所谓的挖矿
+     * @param req
+     * @param resp
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
     @GetMapping("/mine")
     protected  Map<String,Object>  doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BlockChain blockChain = BlockChain.getInstance();
@@ -66,20 +91,38 @@ public class FirstController {
         return response;
     }
 
+    /**
+     * 该Servlet用于接收并处理新的交易信息
+     * @param sender
+     * @param recipient
+     * @param amount
+     * @param req
+     * @param resp
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
+
     @GetMapping("/transactions/new")
     protected JSONObject transactions(String sender,String recipient ,long amount, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // 新建交易信息
         BlockChain blockChain = BlockChain.getInstance();
         int index = blockChain.newTransactions(sender, recipient, amount);
 
-
-
-
-        
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("message", "Transaction will be added to Block " + index);
         return jsonObject;
     }
+
+    /**
+     * 注册网络节点
+     * @param nodes
+     * @param req
+     * @param resp
+     * @return
+     * @throws ServletException
+     * @throws IOException
+     */
     @GetMapping("/nodes/register")
     protected JSONObject register(String nodes, HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         BlockChain blockChain = BlockChain.getInstance();

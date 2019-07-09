@@ -19,7 +19,6 @@ public class BlockChain {
     // 网络中所有节点的集合
     private Set<String> nodes;
 
-
     private static BlockChain blockChain = null;
 
     private BlockChain() {
