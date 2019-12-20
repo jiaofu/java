@@ -11,6 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class CloseExecutor {
+    //  LinkedBlockingQueue 线程是无界的,最大是2的32次方-1
     public static ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 10, 2, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),new ThreadPoolExecutor.DiscardPolicy());
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(DemoApplication.class);
