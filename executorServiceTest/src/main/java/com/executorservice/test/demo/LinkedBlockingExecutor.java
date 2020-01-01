@@ -10,9 +10,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class CloseExecutor {
+public class LinkedBlockingExecutor {
     //  LinkedBlockingQueue 线程是无界的,最大是2的32次方-1
-    public static ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 10, 2, TimeUnit.DAYS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),new ThreadPoolExecutor.DiscardPolicy());
+    // 设置的超时时间没有作用
+    public static ThreadPoolExecutor pool = new ThreadPoolExecutor(2, 10, 2, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),new ThreadPoolExecutor.DiscardPolicy());
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(DemoApplication.class);
         try {
@@ -23,7 +24,7 @@ public class CloseExecutor {
             for (Integer intteger : list) {
                 pool.submit(() -> {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                         System.out.println(intteger);
                         Thread.sleep(1000);
                     } catch (Exception ex) {
