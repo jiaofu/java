@@ -16,7 +16,7 @@ public class Student implements Runnable {
     //学生姓名
     private String name;
     //打饭许可
-    private static Semaphore semaphore;
+    static Semaphore semaphore = new Semaphore(2, true);
     /**
      * 打饭方式
      * 0    一直等待直到打到饭
