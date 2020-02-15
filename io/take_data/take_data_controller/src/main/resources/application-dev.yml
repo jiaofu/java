@@ -1,0 +1,72 @@
+# 测试环境配置
+spring:
+  datasource:
+    db1:
+      jdbc-url: jdbc:mysql://127.0.0.1:3306/coin?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      idle-timeout: 600000
+      maximum-pool-size: 200
+      max-lifetime: 1800000
+      minimum-idle: 0
+    db2:
+      jdbc-url: jdbc:mysql://127.0.0.1:3306/coin_sub?autoReconnect=true&useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+      username: root
+      password: 123456
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      idle-timeout: 600000
+      maximum-pool-size: 200
+      max-lifetime: 1800000
+      minimum-idle: 0
+
+  redis:
+    # Redis数据库索引（默认为0）,如果设置为1，那么存入的key-value都存放在select 1中
+    database: 0
+    host: 192.168.0.2
+    port: 6379
+    password:
+    pool:
+      #连接池最大连接数（使用负值表示没有限制）
+      max-active: 1024
+      # 连接池最大阻塞等待时间（使用负值表示没有限制）
+      max-wait: 30000
+      # 连接池中的最大空闲连接
+      max-idle: 1024
+      # 连接池中的最小空闲连接
+      min-idle: 200
+    # 连接超时时间（毫秒）
+    timeout: 60000
+
+#mybatis驼峰字段映射
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+
+logging:
+  level:
+    root: info
+    com:
+      company: debug
+  path: ../logs/api-log
+
+
+
+trendyml:
+  index: btc
+  pub:
+    - eth
+    - eos
+    - ltc
+    - bch
+    - ht
+  base: USDT
+  from: 2018-01-01
+  key: f196efd9-c365fd3a-vftwcr5tnh-02e07
+  secret: affaed18-97cbbf42-06951db2-0db1b
+  fee: 0.002
+  money: 1000
+  reqNum: 300
+
+
