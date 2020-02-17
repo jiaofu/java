@@ -12,13 +12,19 @@ import java.net.URI;
 @Slf4j
 public class WebSocketConnection extends WebSocketListener {
     private String subscriptionMarketUrl = "wss://api.huobi.pro/ws";
-    private volatile ConnectionState state = ConnectionState.IDLE;
-    private final int connectionId;
-    private static int connectionCounter = 0;
-    private volatile long lastReceivedTime = 0;
-    private WebSocket webSocket = null;
-    private int delayInSecond = 0;
-    private final Request okhttpRequest;
+    protected volatile ConnectionState state = ConnectionState.IDLE;
+    protected final int connectionId;
+    protected static int connectionCounter = 0;
+    protected volatile long lastReceivedTime = 0;
+    protected WebSocket webSocket = null;
+    protected int delayInSecond = 0;
+    protected  Request okhttpRequest;
+    protected final WebsocketRequest request;
+    protected final boolean autoClose;
+    protected final WebSocketWatchDog watchDog;
+
+
+
 
     WebSocketConnection(
 
@@ -31,21 +37,13 @@ public class WebSocketConnection extends WebSocketListener {
         this.autoClose = autoClose;
         try {
             String host = new URI(options.getUri()).getHost();
-            this.tradingHost = host;
-            if (host.indexOf("api") == 0) {
-                this.subscriptionMarketUrl = "wss://" + host + "/ws";
-                this.subscriptionTradingUrl = "wss://" + host + "/ws/v1";
-            } else {
-                this.subscriptionMarketUrl = "wss://" + host + "/api/ws";
-                this.subscriptionTradingUrl = "wss://" + host + "/ws/v1";
-            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
 
-        this.okhttpRequest = request.authHandler == null
-                ? new Request.Builder().url(subscriptionMarketUrl).build()
-                : new Request.Builder().url(subscriptionTradingUrl).build();
+        if(request.authHandler == null){
+            this.okhttpRequest = new Request.Builder().url(subscriptionMarketUrl).build();
+        }
         this.watchDog = watchDog;
         log.info("[Sub] Connection [id: "
                 + this.connectionId
@@ -86,4 +84,6 @@ public class WebSocketConnection extends WebSocketListener {
         log.info("[Sub][" + this.connectionId + "] Connecting...");
         webSocket = RestApiInvoker.createWebSocket(okhttpRequest, this);
     }
+
+    //
 }
