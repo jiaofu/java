@@ -2,9 +2,11 @@ package com.jex.take.data.service.api;
 
 import com.jex.take.data.service.dto.TradeStatistics;
 import com.jex.take.data.service.util.RestApiInvoker;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class HuobiRequestClient implements RequestClient {
 
     private static String  baseUrl = "https://api.huobi.pro";
