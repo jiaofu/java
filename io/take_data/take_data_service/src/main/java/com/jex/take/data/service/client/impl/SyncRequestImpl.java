@@ -1,24 +1,19 @@
-package com.jex.take.data.service.api;
+package com.jex.take.data.service.client.impl;
 
+import com.jex.take.data.service.api.RestApiRequestImpl;
+import com.jex.take.data.service.client.SyncRequestClient;
 import com.jex.take.data.service.dto.TradeStatistics;
 import com.jex.take.data.service.util.RestApiInvoker;
 
 import java.util.Map;
 
-
-public class HuobiRequestClient implements RequestClient {
-
-    private static String  baseUrl = "https://api.huobi.pro";
-
-
-    public static String getBaseUrl(){
-        return baseUrl;
-    }
+public class SyncRequestImpl implements SyncRequestClient {
     private final RestApiRequestImpl requestImpl;
 
-   public HuobiRequestClient(RestApiRequestImpl requestImpl) {
+    public SyncRequestImpl(RestApiRequestImpl requestImpl) {
         this.requestImpl = requestImpl;
     }
+
 
     @Override
     public Map<String, TradeStatistics> getTickers() {

@@ -1,6 +1,7 @@
-package com.jex.take.data.controller.cron.listener;
+package com.jex.take.data.cron.listener;
 
-import com.shui.data.analysis.cron.job.PriceJob;
+
+import com.jex.take.data.cron.job.PriceJob;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

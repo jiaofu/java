@@ -1,19 +1,28 @@
 package com.jex.take.data.service.api;
 
 import com.jex.take.data.service.dto.TradeStatistics;
-import com.jex.take.data.service.util.JsonWrapperArray;
-import com.jex.take.data.service.util.RestApiRequest;
-import com.jex.take.data.service.util.TimeService;
-import com.jex.take.data.service.util.UrlParamsBuilder;
+import com.jex.take.data.service.util.*;
 import okhttp3.Request;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 public class RestApiRequestImpl {
     private String marketQueryUrl;
-    RestApiRequestImpl( String  url) {
-        this.marketQueryUrl = url;
+    private RequestOptions options;
+
+    public RestApiRequestImpl( RequestOptions options) {
+        this.options = options;
+        try {
+            String host = new URL(this.options.getUrl()).getHost();
+            if (host.indexOf("api") == 0) {
+                this.marketQueryUrl = "https://" + host;
+            } else {
+                this.marketQueryUrl = "https://" + host + "/api";
+            }
+        } catch (Exception e) {
+        }
     }
 
     private Request createRequestByGet(String address, UrlParamsBuilder builder) {
@@ -40,7 +49,7 @@ public class RestApiRequestImpl {
     }
 
 
-    RestApiRequest<Map<String, TradeStatistics>> getTickers() {
+   public RestApiRequest<Map<String, TradeStatistics>> getTickers() {
         RestApiRequest<Map<String, TradeStatistics>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/market/tickers", UrlParamsBuilder.build());
         request.jsonParser = (jsonWrapper -> {

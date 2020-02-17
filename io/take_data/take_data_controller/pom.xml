@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>take_data_cintroller</artifactId>
+    <artifactId>take_data_controller</artifactId>
 
 
     <dependencies>
         <dependency>
             <groupId>com.jex.markdata</groupId>
-            <artifactId>take_data_server</artifactId>
+            <artifactId>take_data_service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

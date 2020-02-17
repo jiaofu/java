@@ -1,8 +1,14 @@
 package com.jex.take.data.service.util;
 
 import com.jex.take.data.service.exception.ApiException;
+import com.jex.take.data.service.util.result.AsyncResult;
+import com.jex.take.data.service.util.result.FailedAsyncResult;
+import com.jex.take.data.service.util.result.ResponseCallback;
+import com.jex.take.data.service.util.result.SucceededAsyncResult;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+
+import java.io.IOException;
 
 @Slf4j
 public  class RestApiInvoker {
@@ -77,6 +83,61 @@ public  class RestApiInvoker {
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
+            throw new ApiException(
+                    ApiException.ENV_ERROR, "[Invoking] Unexpected error: " + e.getMessage());
+        }
+    }
+
+   public static <T> void callASync(RestApiRequest<T> request, ResponseCallback<AsyncResult<T>> callback) {
+        try {
+            Call call = client.newCall(request.request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    FailedAsyncResult<T> result = new FailedAsyncResult<>(
+                            new ApiException(ApiException.RUNTIME_ERROR,
+                                    "[Invoking] Rest api call failed"));
+                    try {
+                        callback.onResponse(result);
+                    } catch (Exception exception) {
+                        log.error("[Invoking] Unexpected error: " + exception.getMessage(), e);
+                    }
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) {
+                    String str = "";
+                    JsonWrapper jsonWrapper;
+                    try {
+                        if (response != null && response.body() != null) {
+                            str = response.body().string();
+                            response.close();
+                        }
+                        jsonWrapper = JsonWrapper.parseFromString(str);
+                        checkResponse(jsonWrapper);
+
+                    } catch (ApiException e) {
+                        FailedAsyncResult<T> result = new FailedAsyncResult<>(e);
+                        callback.onResponse(result);
+                        return;
+                    } catch (Exception e) {
+                        FailedAsyncResult<T> result = new FailedAsyncResult<>(
+                                new ApiException(
+                                        ApiException.RUNTIME_ERROR, "[Invoking] Rest api call failed"));
+                        callback.onResponse(result);
+                        return;
+                    }
+                    try {
+                        SucceededAsyncResult<T> result = new SucceededAsyncResult<>(
+                                request.jsonParser.parseJson(jsonWrapper));
+                        callback.onResponse(result);
+                    } catch (Exception e) {
+                        log.error("[Invoking] Unexpected error: " + e.getMessage(), e);
+                    }
+
+                }
+            });
+        } catch (Throwable e) {
             throw new ApiException(
                     ApiException.ENV_ERROR, "[Invoking] Unexpected error: " + e.getMessage());
         }

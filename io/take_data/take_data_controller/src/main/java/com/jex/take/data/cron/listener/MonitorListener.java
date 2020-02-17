@@ -1,4 +1,4 @@
-package com.jex.take.data.controller.cron.listener;
+package com.jex.take.data.cron.listener;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;

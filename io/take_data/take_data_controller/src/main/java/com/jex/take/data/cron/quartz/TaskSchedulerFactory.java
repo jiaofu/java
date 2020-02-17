@@ -1,4 +1,4 @@
-package com.jex.take.data.controller.cron.quartz;
+package com.jex.take.data.cron.quartz;
 
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.factory.annotation.Autowired;

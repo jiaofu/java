@@ -13,11 +13,7 @@
 
 
     <dependencies>
-        <dependency>
-            <groupId>com.jex.markdata</groupId>
-            <artifactId>take_data_dao</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
