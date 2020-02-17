@@ -20,4 +20,9 @@ public class AsyncRequestImpl implements AsyncRequestClient {
     public void getTickers(ResponseCallback<AsyncResult<Map<String, TradeStatistics>>> callback) {
         RestApiInvoker.callASync(requestImpl.getTickers(), callback);
     }
+
+    @Override
+    public void getOktickers(ResponseCallback<AsyncResult<Map<String, TradeStatistics>>> callback) {
+
+    }
 }

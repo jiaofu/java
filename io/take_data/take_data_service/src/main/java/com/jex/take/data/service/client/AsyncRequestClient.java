@@ -10,6 +10,8 @@ import java.util.Map;
 
 public interface AsyncRequestClient {
     void getTickers(ResponseCallback<AsyncResult<Map<String, TradeStatistics>>> callback);
+
+    void getOktickers(ResponseCallback<AsyncResult<Map<String, TradeStatistics>>> callback);
     static AsyncRequestClient create() {
         return HuobiApiInternalFactory.getInstance().createAsyncRequestClient(
                 new RequestOptions());

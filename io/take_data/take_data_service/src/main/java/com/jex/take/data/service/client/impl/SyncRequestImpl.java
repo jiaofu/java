@@ -19,4 +19,9 @@ public class SyncRequestImpl implements SyncRequestClient {
     public Map<String, TradeStatistics> getTickers() {
         return RestApiInvoker.callSync(requestImpl.getTickers());
     }
+
+    @Override
+    public Map<String, TradeStatistics> getOktickers() {
+        return RestApiInvoker.callSync(requestImpl.getOkTickers());
+    }
 }

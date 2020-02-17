@@ -10,8 +10,16 @@ public interface SyncRequestClient {
 
     Map<String, TradeStatistics> getTickers();
 
-  public  static SyncRequestClient create() {
+
+    Map<String, TradeStatistics> getOktickers();
+
+    public static SyncRequestClient create() {
         return HuobiApiInternalFactory.getInstance().createSyncRequestClient(
-              new RequestOptions());
+                new RequestOptions());
+    }
+
+     static SyncRequestClient create(RequestOptions requestOptions) {
+        return HuobiApiInternalFactory.getInstance().createSyncRequestClient(
+                requestOptions);
     }
 }

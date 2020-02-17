@@ -1,8 +1,5 @@
 package com.jex.take.data.cron.job;
 
-
-import com.jex.take.data.service.enums.CandlestickInterval;
-import com.jex.take.data.service.websocket.huobi.SubscriptionClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -12,12 +9,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
 
+
 @Slf4j
 @Service
 @DisallowConcurrentExecution
-public class PriceJob implements Job, Serializable {
-
-
+public class BinancePriceJob implements Job, Serializable {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -39,7 +35,7 @@ public class PriceJob implements Job, Serializable {
             }
         });*/
 
-        SubscriptionClient subscriptionClient = SubscriptionClient.create();
+/*        SubscriptionClient subscriptionClient = SubscriptionClient.create();
         String symbol = "btcusdt";
         subscriptionClient.subscribeCandlestickEvent(symbol, CandlestickInterval.MIN15, (candlestickEvent) -> {
             System.out.println("--------------- Subscribe Candlestick ------------------");
@@ -50,7 +46,7 @@ public class PriceJob implements Job, Serializable {
             System.out.println("Open: " + candlestickEvent.getData().getOpen());
             System.out.println("Close: " + candlestickEvent.getData().getClose());
             System.out.println("Volume: " + candlestickEvent.getData().getVolume());
-        });
+        });*/
 
         System.out.println("测试");
 
