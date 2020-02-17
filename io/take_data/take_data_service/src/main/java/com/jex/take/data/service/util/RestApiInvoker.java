@@ -16,48 +16,51 @@ public  class RestApiInvoker {
 
 
     private static final OkHttpClient client = new OkHttpClient();
-    static void checkResponse(JsonWrapper json) {
-        try {
-            if (json.containKey("status")) {
-                String status = json.getString("status");
-                if ("error".equals(status)) {
-                    String err_code = json.getString("err-code");
-                    String err_msg = json.getString("err-msg");
-                    throw new ApiException(ApiException.EXEC_ERROR,
-                            "[Executing] " + err_code + ": " + err_msg);
-                } else if (!"ok".equals(status)) {
-                    throw new ApiException(
-                            ApiException.RUNTIME_ERROR, "[Invoking] Response is not expected: " + status);
-                }
-            } else if (json.containKey("success")) {
-                boolean success = json.getBoolean("success");
-                if (!success) {
-                    String err_code = EtfResult.checkResult(json.getInteger("code"));
-                    String err_msg = json.getString("message");
-                    if ("".equals(err_code)) {
-                        throw new ApiException(ApiException.EXEC_ERROR, "[Executing] " + err_msg);
-                    } else {
+    static void checkResponse(JsonWrapper json,String host) {
+        if(host.toLowerCase().contains("huobi")){
+            try {
+                if (json.containKey("status")) {
+                    String status = json.getString("status");
+                    if ("error".equals(status)) {
+                        String err_code = json.getString("err-code");
+                        String err_msg = json.getString("err-msg");
                         throw new ApiException(ApiException.EXEC_ERROR,
                                 "[Executing] " + err_code + ": " + err_msg);
+                    } else if (!"ok".equals(status)) {
+                        throw new ApiException(
+                                ApiException.RUNTIME_ERROR, "[Invoking] Response is not expected: " + status);
                     }
-                }
-            } else if (json.containKey("code")) {
+                } else if (json.containKey("success")) {
+                    boolean success = json.getBoolean("success");
+                    if (!success) {
+                        String err_code = EtfResult.checkResult(json.getInteger("code"));
+                        String err_msg = json.getString("message");
+                        if ("".equals(err_code)) {
+                            throw new ApiException(ApiException.EXEC_ERROR, "[Executing] " + err_msg);
+                        } else {
+                            throw new ApiException(ApiException.EXEC_ERROR,
+                                    "[Executing] " + err_code + ": " + err_msg);
+                        }
+                    }
+                } else if (json.containKey("code")) {
 
-                int code = json.getInteger("code");
-                if (code != 200) {
-                    String message = json.getString("message");
-                    throw new ApiException(ApiException.EXEC_ERROR, "[Executing] " + code + ": " + message);
+                    int code = json.getInteger("code");
+                    if (code != 200) {
+                        String message = json.getString("message");
+                        throw new ApiException(ApiException.EXEC_ERROR, "[Executing] " + code + ": " + message);
+                    }
+                } else {
+                    throw new ApiException(
+                            ApiException.RUNTIME_ERROR, "[Invoking] Status cannot be found in response.");
                 }
-            } else {
+            } catch (ApiException e) {
+                throw e;
+            } catch (Exception e) {
                 throw new ApiException(
-                        ApiException.RUNTIME_ERROR, "[Invoking] Status cannot be found in response.");
+                        ApiException.RUNTIME_ERROR, "[Invoking] Unexpected error: " + e.getMessage());
             }
-        } catch (ApiException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new ApiException(
-                    ApiException.RUNTIME_ERROR, "[Invoking] Unexpected error: " + e.getMessage());
         }
+
     }
 
    public static <T> T callSync(RestApiRequest<T> request) {
@@ -78,7 +81,7 @@ public  class RestApiInvoker {
             }
             log.debug("Response =====> " + str);
             JsonWrapper jsonWrapper = JsonWrapper.parseFromString(str);
-            checkResponse(jsonWrapper);
+            checkResponse(jsonWrapper,request.request.url().host());
             return request.jsonParser.parseJson(jsonWrapper);
         } catch (ApiException e) {
             throw e;
@@ -114,7 +117,7 @@ public  class RestApiInvoker {
                             response.close();
                         }
                         jsonWrapper = JsonWrapper.parseFromString(str);
-                        checkResponse(jsonWrapper);
+                        checkResponse(jsonWrapper,request.request.url().host());
 
                     } catch (ApiException e) {
                         FailedAsyncResult<T> result = new FailedAsyncResult<>(e);

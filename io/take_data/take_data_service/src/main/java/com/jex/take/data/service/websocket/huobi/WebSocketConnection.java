@@ -93,10 +93,11 @@ public class WebSocketConnection extends WebSocketListener {
     }
 
 
+    //websocket
 
     // 发送通知
 
-    void send(String str) {
+   public void send(String str) {
         boolean result = false;
         log.debug("[Send]{}", str);
         if (webSocket != null) {
@@ -108,85 +109,8 @@ public class WebSocketConnection extends WebSocketListener {
             closeOnError();
         }
     }
-    // webSock 相关
 
-
-
-    @Override
-    public void onMessage(WebSocket webSocket, String text) {
-        super.onMessage(webSocket, text);
-        lastReceivedTime = TimeService.getCurrentTimeStamp();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onMessage(WebSocket webSocket, ByteString bytes) {
-        super.onMessage(webSocket, bytes);
-        try {
-            if (request == null) {
-                log.error("[Sub][" + this.connectionId
-                        + "] request is null");
-                closeOnError();
-                return;
-            }
-
-            lastReceivedTime = TimeService.getCurrentTimeStamp();
-
-            String data;
-            try {
-                data = new String(InternalUtils.decode(bytes.toByteArray()));
-            } catch (IOException e) {
-                log.error("[Sub][" + this.connectionId
-                        + "] Receive message error: " + e.getMessage());
-                closeOnError();
-                return;
-            }
-            log.debug("[On Message][{}] {}", connectionId, data);
-            JsonWrapper jsonWrapper = JsonWrapper.parseFromString(data);
-            if (jsonWrapper.containKey("status") && !"ok".equals(jsonWrapper.getString("status"))) {
-                String errorCode = jsonWrapper.getStringOrDefault("err-code", "");
-                String errorMsg = jsonWrapper.getStringOrDefault("err-msg", "");
-                onError(errorCode + ": " + errorMsg, null);
-                log.error("[Sub][" + this.connectionId
-                        + "] Got error from server: " + errorCode + "; " + errorMsg);
-                close();
-            } else if (jsonWrapper.containKey("op")) {
-                String op = jsonWrapper.getString("op");
-                if (op.equals("notify")) {
-                    onReceive(jsonWrapper);
-                } else if (op.equals("ping")) {
-                    processPingOnTradingLine(jsonWrapper, webSocket);
-                } else if (op.equals("auth")) {
-                    if (request.authHandler != null) {
-                        request.authHandler.handle(this);
-                    }
-                } else if (op.equals("req")) {
-                    onReceiveAndClose(jsonWrapper);
-                }
-            } else if (jsonWrapper.containKey("ch") || jsonWrapper.containKey("rep")) {
-                onReceiveAndClose(jsonWrapper);
-            } else if (jsonWrapper.containKey("ping")) {
-                processPingOnMarketLine(jsonWrapper, webSocket);
-            } else if (jsonWrapper.containKey("subbed")) {
-            }
-        } catch (Exception e) {
-            log.error("[Sub][" + this.connectionId + "] Unexpected error: " + e.getMessage());
-            closeOnError();
-        }
-    }
-
-    private void processPingOnTradingLine(JsonWrapper jsonWrapper, WebSocket webSocket) {
-        long ts = jsonWrapper.getLong("ts");
-        webSocket.send(String.format("{\"op\":\"pong\",\"ts\":%d}", ts));
-    }
-
-    private void processPingOnMarketLine(JsonWrapper jsonWrapper, WebSocket webSocket) {
-        long ts = jsonWrapper.getLong("ping");
-        webSocket.send(String.format("{\"pong\":%d}", ts));
-    }
-
-
-    private void onReceiveAndClose(JsonWrapper jsonWrapper) {
+    public void onReceiveAndClose(JsonWrapper jsonWrapper) {
         onReceive(jsonWrapper);
         if (autoClose) {
             close();
@@ -199,7 +123,7 @@ public class WebSocketConnection extends WebSocketListener {
         watchDog.onClosedNormally(this);
     }
 
-    private void onReceive(JsonWrapper jsonWrapper) {
+    public void onReceive(JsonWrapper jsonWrapper) {
         Object obj = null;
         try {
             obj = request.jsonParser.parseJson(jsonWrapper);
@@ -243,7 +167,7 @@ public class WebSocketConnection extends WebSocketListener {
         closeOnError();
     }
 
-    private void onError(String errorMessage, Throwable e) {
+    public void onError(String errorMessage, Throwable e) {
         if (request.errorHandler != null) {
             ApiException exception = new ApiException(
                     ApiException.SUBSCRIPTION_ERROR, errorMessage, e);
@@ -251,11 +175,15 @@ public class WebSocketConnection extends WebSocketListener {
         }
         log.error("[Sub][" + this.connectionId + "] " + errorMessage);
     }
-    private void closeOnError() {
+    public void closeOnError() {
         if (webSocket != null) {
             this.webSocket.cancel();
             state = ConnectionState.CLOSED_ON_ERROR;
             log.error("[Sub][" + this.connectionId + "] Connection is closing due to error");
         }
     }
+
+
+
+
 }

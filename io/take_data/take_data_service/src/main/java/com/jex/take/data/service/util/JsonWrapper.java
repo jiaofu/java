@@ -11,10 +11,19 @@ import java.math.BigDecimal;
 
 @Slf4j
 public class JsonWrapper {
-    private final JSONObject json;
-
+    private  JSONObject json;
+    private   JSONArray jsonArrayOk;
     public static JsonWrapper parseFromString(String text)  {
 
+        if(JSON.isValidArray(text)){
+            JSONArray jsona = JSON.parseArray(text);
+            if (jsona != null) {
+                return new JsonWrapper(jsona);
+            } else {
+                throw new ApiException(ApiException.RUNTIME_ERROR,
+                        "[Json] Unknown error when parse: " + text);
+            }
+        }
         try {
             JSONObject jsonObject = (JSONObject) JSON.parse(text);
             if (jsonObject != null) {
@@ -33,6 +42,17 @@ public class JsonWrapper {
     }
     public JsonWrapper(JSONObject json) {
         this.json = json;
+    }
+    public JsonWrapper(JSONArray json) {
+        this.jsonArrayOk = json;
+    }
+
+    public void setJsonArrayOk(JSONArray jsonArrayOk) {
+        this.jsonArrayOk = jsonArrayOk;
+    }
+
+    public JSONArray getJsonArrayOk() {
+        return jsonArrayOk;
     }
 
     private void checkMandatoryField(String name) {

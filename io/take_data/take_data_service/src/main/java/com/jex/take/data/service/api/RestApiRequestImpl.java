@@ -79,6 +79,17 @@ public class RestApiRequestImpl {
         request.request = createRequestByGet("/api/spot/v3/instruments/ticker", UrlParamsBuilder.build());
         request.jsonParser = (jsonWrapper -> {
             Map<String, TradeStatistics> map = new HashMap<>();
+
+            if(jsonWrapper.getJsonArrayOk() !=null){
+                JsonWrapperArray dataArray = new JsonWrapperArray(jsonWrapper.getJsonArrayOk());
+                dataArray.forEach(item -> {
+                    TradeStatistics statistics = new TradeStatistics();
+                    statistics.setAmount(item.getBigDecimal("last"));
+                    statistics.setClose(item.getBigDecimal("last"));
+                    map.put(item.getString("product_id"), statistics);
+                });
+
+            }
            System.out.println( JSON.toJSONString(jsonWrapper));
 /*            JsonWrapperArray dataArray = jsonWrapper.getJsonArray("data");
             long ts = TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts"));

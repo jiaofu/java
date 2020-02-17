@@ -18,7 +18,7 @@ public interface SyncRequestClient {
                 new RequestOptions());
     }
 
-     static SyncRequestClient create(RequestOptions requestOptions) {
+    public static SyncRequestClient create(RequestOptions requestOptions) {
         return HuobiApiInternalFactory.getInstance().createSyncRequestClient(
                 requestOptions);
     }

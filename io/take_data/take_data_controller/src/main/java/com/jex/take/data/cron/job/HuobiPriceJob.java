@@ -39,7 +39,7 @@ public class HuobiPriceJob implements Job, Serializable {
             }
         });*/
 
-/*        SubscriptionClient subscriptionClient = SubscriptionClient.create();
+        SubscriptionClient subscriptionClient = SubscriptionClient.create();
         String symbol = "btcusdt";
         subscriptionClient.subscribeCandlestickEvent(symbol, CandlestickInterval.MIN15, (candlestickEvent) -> {
             System.out.println("--------------- Subscribe Candlestick ------------------");
@@ -50,7 +50,7 @@ public class HuobiPriceJob implements Job, Serializable {
             System.out.println("Open: " + candlestickEvent.getData().getOpen());
             System.out.println("Close: " + candlestickEvent.getData().getClose());
             System.out.println("Volume: " + candlestickEvent.getData().getVolume());
-        });*/
+        });
 
         System.out.println("测试");
 
