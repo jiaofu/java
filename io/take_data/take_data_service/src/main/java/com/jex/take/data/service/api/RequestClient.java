@@ -1,9 +1,9 @@
 package com.jex.take.data.service.api;
 
-import com.jex.take.data.service.dto.TradeStatistics;
+import com.jex.take.data.service.dto.TickerDTO;
 
 import java.util.Map;
 
 public interface RequestClient {
-    Map<String, TradeStatistics> getTickers();
+    Map<String, TickerDTO> getTickers();
 }

@@ -1,5 +1,6 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.model.event.CandlestickEvent;
 import com.jex.take.data.service.model.event.CandlestickReqEvent;
@@ -31,6 +32,37 @@ public interface SubscriptionClient {
                                    SubscriptionListener<CandlestickEvent> callback,
                                    SubscriptionErrorHandler errorHandler);
 
+
+    /**
+     * 火币的ticker(火币的ticker 主要取的是 k 线,没有找到一直推送的数据)
+     * @param symbols
+     * @param interval
+     * @param callback
+     * @param errorHandler
+     */
+    void subscribeTickerHuobiEvent(String symbols, CandlestickInterval interval,
+                                   SubscriptionListener<TickerDTO> callback,
+                                   SubscriptionErrorHandler errorHandler);
+
+    /**
+     * ok 的订阅ticker
+     * @param symbols
+     * @param callback
+     * @param errorHandler
+     */
+    void subscribeTickerOkEvent(String symbols,
+                                   SubscriptionListener<TickerDTO> callback,
+                                   SubscriptionErrorHandler errorHandler);
+
+    /**
+     * 币安的ticker
+     * @param symbols
+     * @param callback
+     * @param errorHandler
+     */
+    void subscribeTickerBinanceEvent(String symbols,
+                                SubscriptionListener<TickerDTO> callback,
+                                SubscriptionErrorHandler errorHandler);
     /**
      * Request candlestick/kline event. If the candlestick/kline is received, server will send the data to client and onReceive in callback will be
      * called.

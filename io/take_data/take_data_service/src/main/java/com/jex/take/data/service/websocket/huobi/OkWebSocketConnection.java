@@ -3,11 +3,18 @@ package com.jex.take.data.service.websocket.huobi;
 import com.jex.take.data.service.util.InternalUtils;
 import com.jex.take.data.service.util.JsonWrapper;
 import com.jex.take.data.service.util.TimeService;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import okio.ByteString;
+import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.zip.Inflater;
 
 @Slf4j
 public class OkWebSocketConnection extends WebSocketConnection  {
@@ -18,6 +25,23 @@ public class OkWebSocketConnection extends WebSocketConnection  {
             WebSocketWatchDog watchDog,
             boolean autoClose){
         super(options,request,watchDog,autoClose);
+    }
+
+
+    //解压
+    private static String uncompress(byte[] bytes) {
+        try (final ByteArrayOutputStream out = new ByteArrayOutputStream();
+             final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+             final Deflate64CompressorInputStream zin = new Deflate64CompressorInputStream(in)) {
+            final byte[] buffer = new byte[1024];
+            int offset;
+            while (-1 != (offset = zin.read(buffer))) {
+                out.write(buffer, 0, offset);
+            }
+            return out.toString();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // webSock 相关
@@ -46,6 +70,8 @@ public class OkWebSocketConnection extends WebSocketConnection  {
 
             String data;
             try {
+                String resultWebSocket = uncompress(   bytes.toByteArray());
+                System.out.println(uncompress(   bytes.toByteArray()));
                 data = new String(InternalUtils.decode(bytes.toByteArray()));
             } catch (IOException e) {
                 log.error("[Sub][" + this.connectionId
@@ -78,7 +104,7 @@ public class OkWebSocketConnection extends WebSocketConnection  {
             } else if (jsonWrapper.containKey("ch") || jsonWrapper.containKey("rep")) {
                 onReceiveAndClose(jsonWrapper);
             } else if (jsonWrapper.containKey("ping")) {
-                processPingOnMarketLine(jsonWrapper, webSocket);
+
             } else if (jsonWrapper.containKey("subbed")) {
             }
         } catch (Exception e) {
@@ -88,13 +114,10 @@ public class OkWebSocketConnection extends WebSocketConnection  {
     }
 
     private void processPingOnTradingLine(JsonWrapper jsonWrapper, WebSocket webSocket) {
-        long ts = jsonWrapper.getLong("ts");
-        webSocket.send(String.format("{\"op\":\"pong\",\"ts\":%d}", ts));
+
+        webSocket.send("ping");
     }
 
-    private void processPingOnMarketLine(JsonWrapper jsonWrapper, WebSocket webSocket) {
-        long ts = jsonWrapper.getLong("ping");
-        webSocket.send(String.format("{\"pong\":%d}", ts));
-    }
+
 
 }

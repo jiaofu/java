@@ -1,6 +1,8 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.alibaba.fastjson.JSONArray;
 import com.jex.take.data.service.dto.Candlestick;
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.model.event.CandlestickEvent;
 import com.jex.take.data.service.model.event.CandlestickReqEvent;
@@ -10,6 +12,94 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WebsocketRequestImpl {
+
+    WebsocketRequest<TickerDTO> subscribeTickerHuobiEvent(
+            List<String> symbols,
+            CandlestickInterval interval,
+            SubscriptionListener<TickerDTO> subscriptionListener,
+            SubscriptionErrorHandler errorHandler) {
+
+        WebsocketRequest<TickerDTO> request =
+                new WebsocketRequest<>(subscriptionListener, errorHandler);
+        if (symbols.size() == 1) {
+            request.name = "Candlestick for Huobi ticker" + symbols;
+        } else {
+            request.name = "Candlestick for Huobi ticker" + symbols + " ...";
+        }
+        request.connectionHandler = (connection) ->
+                symbols.stream()
+                        .map((symbol) -> Channels.klineChannel(symbol, interval))
+                        .forEach(req -> {
+                            connection.send(req);
+                            InternalUtils.await(1);
+                        });
+        request.jsonParser = (jsonWrapper) -> {
+            String ch = jsonWrapper.getString("ch");
+            ChannelParser parser = new ChannelParser(ch);
+            TickerDTO data = new TickerDTO();
+            data.setSymbol(parser.getSymbol());
+
+            data.setTimestamp(
+                    TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts")));
+            JsonWrapper tick = jsonWrapper.getJsonObject("tick");
+
+            data.setTimestamp(TimeService.convertCSTInSecondToUTC(tick.getLong("id")));
+
+            data.setClose(tick.getBigDecimal("close"));
+
+            return data;
+        };
+        return request;
+    }
+
+    WebsocketRequest<TickerDTO> subscribeTickerOkEvent(
+            List<String> symbols,
+            SubscriptionListener<TickerDTO> subscriptionListener,
+            SubscriptionErrorHandler errorHandler) {
+
+        WebsocketRequest<TickerDTO> request =
+                new WebsocketRequest<>(subscriptionListener, errorHandler);
+        if (symbols.size() == 1) {
+            request.name = "Candlestick for ok " + symbols;
+        } else {
+            request.name = "Candlestick for ok " + symbols + " ...";
+        }
+        request.connectionHandler = (connection) ->
+                connection.send(Channels.klineOkChannel(symbols));
+        request.jsonParser = (jsonWrapper) -> {
+            String ch = jsonWrapper.getString("data");
+            JSONArray json = JSONArray.parseArray(ch);
+            TickerDTO data = new TickerDTO();
+            System.out.println(ch);
+            return data;
+        };
+        return request;
+    }
+
+    WebsocketRequest<TickerDTO> subscribeTickerBinanceEvent(
+            List<String> symbols,
+            SubscriptionListener<TickerDTO> subscriptionListener,
+            SubscriptionErrorHandler errorHandler) {
+
+        WebsocketRequest<TickerDTO> request =
+                new WebsocketRequest<>(subscriptionListener, errorHandler);
+        if (symbols.size() == 1) {
+            request.name = "Candlestick for binance " + symbols;
+        } else {
+            request.name = "Candlestick for binance " + symbols + " ...";
+        }
+        request.connectionHandler = (connection) ->
+                connection.send(Channels.klineOkChannel(symbols));
+        request.jsonParser = (jsonWrapper) -> {
+            String ch = jsonWrapper.getString("data");
+            JSONArray json = JSONArray.parseArray(ch);
+            TickerDTO data = new TickerDTO();
+            System.out.println(ch);
+            return data;
+        };
+        return request;
+    }
+
 
 
     WebsocketRequest<CandlestickEvent> subscribeCandlestickEvent(
@@ -69,9 +159,9 @@ public class WebsocketRequestImpl {
         WebsocketRequest<CandlestickReqEvent> request =
                 new WebsocketRequest<>(subscriptionListener, errorHandler);
         if (symbols.size() == 1) {
-            request.name = "Candlestick for " + symbols;
+            request.name = "Candlestick for huobi " + symbols;
         } else {
-            request.name = "Candlestick for " + symbols + " ...";
+            request.name = "Candlestick for huobi " + symbols + " ...";
         }
         request.connectionHandler = (connection) ->
                 symbols.stream()
@@ -111,4 +201,7 @@ public class WebsocketRequestImpl {
 
 
     }
+
+
+
 }

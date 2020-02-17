@@ -1,8 +1,10 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.model.event.CandlestickEvent;
 import com.jex.take.data.service.model.event.CandlestickReqEvent;
+import com.jex.take.data.service.util.BaseUrl;
 import com.jex.take.data.service.util.SubscriptionErrorHandler;
 import com.jex.take.data.service.util.SubscriptionListener;
 
@@ -33,13 +35,27 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
         if (watchDog == null) {
             watchDog = new WebSocketWatchDog(options);
         }
-        WebSocketConnection connection = new WebSocketConnection(
-                options, request, watchDog, autoClose);
+
+        WebSocketConnection connection = null;
+        String websocketUrl = options.getUri().toLowerCase();
+        if(websocketUrl.contains(BaseUrl.okSocket.toLowerCase())){
+            connection = new OkWebSocketConnection(
+                    options, request, watchDog, autoClose);
+        }else if(websocketUrl.contains(BaseUrl.binanceSocket.toLowerCase())){
+            connection = new BinanceWebSocketConnection(
+                    options, request, watchDog, autoClose);
+        }else {
+            connection = new HuobiWebSocketConnection(
+                    options, request, watchDog, autoClose);
+        }
+
         if (autoClose == false) {
             connections.add(connection);
         }
         connection.connect();
     }
+
+
 
     private <T> void createConnection(WebsocketRequest<T> request) {
         createConnection(request, false);
@@ -65,6 +81,24 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
             SubscriptionErrorHandler errorHandler) {
         createConnection(requestImpl.subscribeCandlestickEvent(
                 parseSymbols(symbols), interval, subscriptionListener, errorHandler));
+    }
+
+    @Override
+    public void subscribeTickerHuobiEvent(String symbols, CandlestickInterval interval, SubscriptionListener<TickerDTO> callback, SubscriptionErrorHandler errorHandler) {
+        createConnection(requestImpl.subscribeTickerHuobiEvent(
+                parseSymbols(symbols), interval, callback, errorHandler));
+    }
+
+    @Override
+    public void subscribeTickerOkEvent(String symbols, SubscriptionListener<TickerDTO> callback, SubscriptionErrorHandler errorHandler) {
+        createConnection(requestImpl.subscribeTickerOkEvent(
+                parseSymbols(symbols), callback, errorHandler));
+    }
+
+    @Override
+    public void subscribeTickerBinanceEvent(String symbols, SubscriptionListener<TickerDTO> callback, SubscriptionErrorHandler errorHandler) {
+        createConnection(requestImpl.subscribeTickerBinanceEvent(
+                parseSymbols(symbols), callback, errorHandler));
     }
 
     @Override

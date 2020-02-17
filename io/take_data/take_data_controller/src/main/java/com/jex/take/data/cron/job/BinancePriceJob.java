@@ -20,16 +20,16 @@ public class BinancePriceJob implements Job, Serializable {
 /*
         SyncRequestClient syncRequestClient = SyncRequestClient.create();
 
-        Map<String, TradeStatistics> map =  syncRequestClient.getTickers();
+        Map<String, TickerDTO> map =  syncRequestClient.getTickers();
 
-        for(Map.Entry<String, TradeStatistics> entity :map.entrySet()){
+        for(Map.Entry<String, TickerDTO> entity :map.entrySet()){
             System.out.println("同步"+entity.getKey());
         }
 
         AsyncRequestClient asyncRequestClient = AsyncRequestClient.create();
         asyncRequestClient.getTickers(m->{
             if(m.succeeded()){
-                for(Map.Entry<String, TradeStatistics> entity :m.getData().entrySet()){
+                for(Map.Entry<String, TickerDTO> entity :m.getData().entrySet()){
                     System.out.println("异步"+entity.getKey());
                 }
             }

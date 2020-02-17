@@ -1,7 +1,7 @@
 package com.jex.take.data.cron.job;
 
 import com.jex.take.data.service.client.SyncRequestClient;
-import com.jex.take.data.service.dto.TradeStatistics;
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.util.BaseUrl;
 import com.jex.take.data.service.util.RequestOptions;
 import lombok.extern.slf4j.Slf4j;
@@ -27,16 +27,16 @@ public class OkPriceJob implements Job, Serializable {
         requestOptions.setUrl(BaseUrl.okApi);
         SyncRequestClient syncRequestClient = SyncRequestClient.create(requestOptions);
 
-        Map<String, TradeStatistics> map =  syncRequestClient.getOktickers();
+        Map<String, TickerDTO> map =  syncRequestClient.getOktickers();
 
-        for(Map.Entry<String, TradeStatistics> entity :map.entrySet()){
+        for(Map.Entry<String, TickerDTO> entity :map.entrySet()){
             System.out.println("同步"+entity.getKey());
         }
 
 /*        AsyncRequestClient asyncRequestClient = AsyncRequestClient.create();
         asyncRequestClient.getTickers(m->{
             if(m.succeeded()){
-                for(Map.Entry<String, TradeStatistics> entity :m.getData().entrySet()){
+                for(Map.Entry<String, TickerDTO> entity :m.getData().entrySet()){
                     System.out.println("异步"+entity.getKey());
                 }
             }

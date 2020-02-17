@@ -1,7 +1,7 @@
 package com.jex.take.data.service.api;
 
 import com.alibaba.fastjson.JSON;
-import com.jex.take.data.service.dto.TradeStatistics;
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.util.*;
 import okhttp3.Request;
 
@@ -50,23 +50,17 @@ public class RestApiRequestImpl {
     }
 
 
-   public RestApiRequest<Map<String, TradeStatistics>> getTickers() {
-        RestApiRequest<Map<String, TradeStatistics>> request = new RestApiRequest<>();
+   public RestApiRequest<Map<String, TickerDTO>> getHuobiTickers() {
+        RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/market/tickers", UrlParamsBuilder.build());
         request.jsonParser = (jsonWrapper -> {
-            Map<String, TradeStatistics> map = new HashMap<>();
+            Map<String, TickerDTO> map = new HashMap<>();
             JsonWrapperArray dataArray = jsonWrapper.getJsonArray("data");
             long ts = TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts"));
             dataArray.forEach(item -> {
-                TradeStatistics statistics = new TradeStatistics();
+                TickerDTO statistics = new TickerDTO();
                 statistics.setTimestamp(ts);
-                statistics.setAmount(item.getBigDecimal("amount"));
-                statistics.setOpen(item.getBigDecimal("open"));
                 statistics.setClose(item.getBigDecimal("close"));
-                statistics.setHigh(item.getBigDecimal("high"));
-                statistics.setLow(item.getBigDecimal("low"));
-                statistics.setCount(item.getLong("count"));
-                statistics.setVolume(item.getBigDecimal("vol"));
                 map.put(item.getString("symbol"), statistics);
             });
             return map;
@@ -74,37 +68,41 @@ public class RestApiRequestImpl {
         return request;
     }
 
-    public RestApiRequest<Map<String, TradeStatistics>> getOkTickers() {
-        RestApiRequest<Map<String, TradeStatistics>> request = new RestApiRequest<>();
+    public RestApiRequest<Map<String, TickerDTO>> getOkTickers() {
+        RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/api/spot/v3/instruments/ticker", UrlParamsBuilder.build());
         request.jsonParser = (jsonWrapper -> {
-            Map<String, TradeStatistics> map = new HashMap<>();
+            Map<String, TickerDTO> map = new HashMap<>();
 
             if(jsonWrapper.getJsonArrayOk() !=null){
                 JsonWrapperArray dataArray = new JsonWrapperArray(jsonWrapper.getJsonArrayOk());
                 dataArray.forEach(item -> {
-                    TradeStatistics statistics = new TradeStatistics();
-                    statistics.setAmount(item.getBigDecimal("last"));
+                    TickerDTO statistics = new TickerDTO();
                     statistics.setClose(item.getBigDecimal("last"));
                     map.put(item.getString("product_id"), statistics);
                 });
 
             }
-           System.out.println( JSON.toJSONString(jsonWrapper));
-/*            JsonWrapperArray dataArray = jsonWrapper.getJsonArray("data");
-            long ts = TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts"));
-            dataArray.forEach(item -> {
-                TradeStatistics statistics = new TradeStatistics();
-                statistics.setTimestamp(ts);
-                statistics.setAmount(item.getBigDecimal("amount"));
-                statistics.setOpen(item.getBigDecimal("open"));
-                statistics.setClose(item.getBigDecimal("close"));
-                statistics.setHigh(item.getBigDecimal("high"));
-                statistics.setLow(item.getBigDecimal("low"));
-                statistics.setCount(item.getLong("count"));
-                statistics.setVolume(item.getBigDecimal("vol"));
-                map.put(item.getString("symbol"), statistics);
-            });*/
+            return map;
+        });
+        return request;
+    }
+
+    public RestApiRequest<Map<String, TickerDTO>> getBinanceTickers() {
+        RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
+        request.request = createRequestByGet("/api/v3/ticker/price", UrlParamsBuilder.build());
+        request.jsonParser = (jsonWrapper -> {
+            Map<String, TickerDTO> map = new HashMap<>();
+
+            if(jsonWrapper.getJsonArrayOk() !=null){
+                JsonWrapperArray dataArray = new JsonWrapperArray(jsonWrapper.getJsonArrayOk());
+                dataArray.forEach(item -> {
+                    TickerDTO statistics = new TickerDTO();
+                    statistics.setClose(item.getBigDecimal("price"));
+                    map.put(item.getString("symbol"), statistics);
+                });
+
+            }
             return map;
         });
         return request;

@@ -1,6 +1,6 @@
 package com.jex.take.data.service.api;
 
-import com.jex.take.data.service.dto.TradeStatistics;
+import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.util.RestApiInvoker;
 
 import java.util.Map;
@@ -21,7 +21,7 @@ public class HuobiRequestClient implements RequestClient {
     }
 
     @Override
-    public Map<String, TradeStatistics> getTickers() {
+    public Map<String, TickerDTO> getTickers() {
         return RestApiInvoker.callSync(requestImpl.getTickers());
     }
 }

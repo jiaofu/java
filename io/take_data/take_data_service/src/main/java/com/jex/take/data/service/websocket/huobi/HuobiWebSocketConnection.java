@@ -1,12 +1,9 @@
 package com.jex.take.data.service.websocket.huobi;
 
-import com.jex.take.data.service.enums.ConnectionState;
-import com.jex.take.data.service.exception.ApiException;
 import com.jex.take.data.service.util.InternalUtils;
 import com.jex.take.data.service.util.JsonWrapper;
 import com.jex.take.data.service.util.TimeService;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
 import okhttp3.WebSocket;
 import okio.ByteString;
 
