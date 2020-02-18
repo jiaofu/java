@@ -55,18 +55,7 @@ logging:
 
 trendyml:
   index: btc
-  pub:
-    - eth
-    - eos
-    - ltc
-    - bch
-    - ht
-  base: USDT
-  from: 2018-01-01
-  key: f196efd9-c365fd3a-vftwcr5tnh-02e07
-  secret: affaed18-97cbbf42-06951db2-0db1b
-  fee: 0.002
-  money: 1000
-  reqNum: 300
+
+
 
 

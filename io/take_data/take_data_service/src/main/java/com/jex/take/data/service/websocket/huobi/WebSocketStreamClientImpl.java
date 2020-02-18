@@ -9,10 +9,7 @@ import com.jex.take.data.service.util.SubscriptionErrorHandler;
 import com.jex.take.data.service.util.SubscriptionListener;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 public class WebSocketStreamClientImpl implements SubscriptionClient {
@@ -24,6 +21,7 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
 
     private final List<WebSocketConnection> connections = new LinkedList<>();
 
+    Map<String,WebSocketConnection> map = new HashMap<>();
 
     public WebSocketStreamClientImpl(SubscriptionOptions options) {
 

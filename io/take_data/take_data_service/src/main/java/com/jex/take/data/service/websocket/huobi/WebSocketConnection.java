@@ -1,6 +1,5 @@
 package com.jex.take.data.service.websocket.huobi;
 
-import com.alibaba.fastjson.JSONArray;
 import com.jex.take.data.service.enums.ConnectionState;
 import com.jex.take.data.service.exception.ApiException;
 import com.jex.take.data.service.util.JsonWrapper;
@@ -11,8 +10,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
-
-import java.net.URI;
 
 @Slf4j
 public class WebSocketConnection extends WebSocketListener {
