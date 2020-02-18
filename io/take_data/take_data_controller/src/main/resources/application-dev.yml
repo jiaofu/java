@@ -55,7 +55,14 @@ logging:
 
 trendyml:
   index: btc
-
-
+  exchange:
+    - huobi
+    - ok
+    - binance
+  base: USDT
+  from: 2018-01-01
+  fee: 0.002
+  money: 1000
+  reqNum: 300
 
 
