@@ -16,7 +16,7 @@ public class BinanceHandleThread {
     @Autowired
     private Scheduler scheduler;
 
-   // @PostConstruct
+   @PostConstruct
     public void init() throws Exception {
 
         JobDetail jobDetail = JobBuilder

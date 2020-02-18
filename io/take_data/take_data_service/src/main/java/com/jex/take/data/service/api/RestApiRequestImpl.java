@@ -6,6 +6,7 @@ import com.jex.take.data.service.util.*;
 import okhttp3.Request;
 
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,7 +60,7 @@ public class RestApiRequestImpl {
             long ts = TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts"));
             dataArray.forEach(item -> {
                 TickerDTO statistics = new TickerDTO();
-                statistics.setTimestamp(ts);
+                statistics.setDate(new Date(ts));
                 statistics.setClose(item.getBigDecimal("close"));
                 map.put(item.getString("symbol"), statistics);
             });

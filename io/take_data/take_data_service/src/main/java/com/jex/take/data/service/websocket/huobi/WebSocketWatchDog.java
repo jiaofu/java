@@ -1,6 +1,7 @@
 package com.jex.take.data.service.websocket.huobi;
 
 import com.jex.take.data.service.enums.ConnectionState;
+import com.jex.take.data.service.util.BaseUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,13 @@ public class WebSocketWatchDog {
                 } else if (connection.getState() == ConnectionState.CLOSED_ON_ERROR) {
                     if (options.isAutoReconnect()) {
                         connection.reConnect(options.getConnectionDelayOnFailure());
+                    }
+                }
+
+                // 如果是 ok,则需要定时 发送 ping
+                if(connection.getState() == ConnectionState.CONNECTED){
+                    if(subscriptionOptions.getUri().toLowerCase().contains(BaseUrl.okSocket)){
+                        connection.send("ping");
                     }
                 }
             });

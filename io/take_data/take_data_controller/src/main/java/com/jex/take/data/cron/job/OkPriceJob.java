@@ -4,6 +4,8 @@ import com.jex.take.data.service.client.SyncRequestClient;
 import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.util.BaseUrl;
 import com.jex.take.data.service.util.RequestOptions;
+import com.jex.take.data.service.websocket.huobi.SubscriptionClient;
+import com.jex.take.data.service.websocket.huobi.SubscriptionOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -23,7 +25,7 @@ public class OkPriceJob implements Job, Serializable {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
-        RequestOptions requestOptions = new RequestOptions();
+/*        RequestOptions requestOptions = new RequestOptions();
         requestOptions.setUrl(BaseUrl.okApi);
         SyncRequestClient syncRequestClient = SyncRequestClient.create(requestOptions);
 
@@ -31,7 +33,7 @@ public class OkPriceJob implements Job, Serializable {
 
         for(Map.Entry<String, TickerDTO> entity :map.entrySet()){
             System.out.println("同步"+entity.getKey());
-        }
+        }*/
 
 /*        AsyncRequestClient asyncRequestClient = AsyncRequestClient.create();
         asyncRequestClient.getTickers(m->{
@@ -42,18 +44,16 @@ public class OkPriceJob implements Job, Serializable {
             }
         });*/
 
-/*        SubscriptionClient subscriptionClient = SubscriptionClient.create();
-        String symbol = "btcusdt";
-        subscriptionClient.subscribeCandlestickEvent(symbol, CandlestickInterval.MIN15, (candlestickEvent) -> {
+        SubscriptionOptions subscriptionOptions =  new SubscriptionOptions();
+        subscriptionOptions.setUri(BaseUrl.okSocket);
+        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
+
+        String symbol = "ETH-USDT,BTC-USDT";
+
+        subscriptionClient.subscribeTickerOkEvent(symbol, (event) -> {
             System.out.println("--------------- Subscribe Candlestick ------------------");
-            System.out.println("id: " + candlestickEvent.getData().getId());
-            System.out.println("Timestamp: " + candlestickEvent.getData().getTimestamp());
-            System.out.println("High: " + candlestickEvent.getData().getHigh());
-            System.out.println("Low: " + candlestickEvent.getData().getLow());
-            System.out.println("Open: " + candlestickEvent.getData().getOpen());
-            System.out.println("Close: " + candlestickEvent.getData().getClose());
-            System.out.println("Volume: " + candlestickEvent.getData().getVolume());
-        });*/
+            System.out.println(event.getSymbol());
+        },e-> System.out.println(e.getMessage()));
 
         System.out.println("测试");
 

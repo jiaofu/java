@@ -1,5 +1,8 @@
 package com.jex.take.data.cron.job;
 
+import com.jex.take.data.service.util.BaseUrl;
+import com.jex.take.data.service.websocket.huobi.SubscriptionClient;
+import com.jex.take.data.service.websocket.huobi.SubscriptionOptions;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -8,6 +11,8 @@ import org.quartz.JobExecutionException;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Slf4j
@@ -35,18 +40,20 @@ public class BinancePriceJob implements Job, Serializable {
             }
         });*/
 
-/*        SubscriptionClient subscriptionClient = SubscriptionClient.create();
-        String symbol = "btcusdt";
-        subscriptionClient.subscribeCandlestickEvent(symbol, CandlestickInterval.MIN15, (candlestickEvent) -> {
-            System.out.println("--------------- Subscribe Candlestick ------------------");
-            System.out.println("id: " + candlestickEvent.getData().getId());
-            System.out.println("Timestamp: " + candlestickEvent.getData().getTimestamp());
-            System.out.println("High: " + candlestickEvent.getData().getHigh());
-            System.out.println("Low: " + candlestickEvent.getData().getLow());
-            System.out.println("Open: " + candlestickEvent.getData().getOpen());
-            System.out.println("Close: " + candlestickEvent.getData().getClose());
-            System.out.println("Volume: " + candlestickEvent.getData().getVolume());
-        });*/
+        SubscriptionOptions subscriptionOptions =  new SubscriptionOptions();
+
+        List<String> list = new ArrayList<>();
+        list.add("BTCUSDT");
+        list.add("ETHUSDT");
+        subscriptionOptions.setTagWs(list);
+        subscriptionOptions.setUri(BaseUrl.binanceSocket);
+        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
+
+
+
+        subscriptionClient.subscribeTickerBinanceEvent((event) -> {
+            System.out.println(event.getSymbol());
+        },e-> System.out.println(e.getMessage()));
 
         System.out.println("测试");
 

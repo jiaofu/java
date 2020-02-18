@@ -8,6 +8,9 @@ import com.jex.take.data.service.util.SubscriptionErrorHandler;
 import com.jex.take.data.service.util.SubscriptionListener;
 
 public interface SubscriptionClient {
+
+
+
     /**
      * Subscribe candlestick/kline event. If the candlestick/kline is updated, server will send the data to client and onReceive in callback will be
      * called.
@@ -60,7 +63,7 @@ public interface SubscriptionClient {
      * @param callback
      * @param errorHandler
      */
-    void subscribeTickerBinanceEvent(String symbols,
+    void subscribeTickerBinanceEvent(
                                 SubscriptionListener<TickerDTO> callback,
                                 SubscriptionErrorHandler errorHandler);
     /**

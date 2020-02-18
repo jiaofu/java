@@ -33,6 +33,12 @@
             <version>1.18</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.jex.markdata</groupId>
+            <artifactId>take_data_util</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
 
     </dependencies>
 </project>

@@ -1,15 +1,21 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.jex.take.data.service.dto.Candlestick;
 import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.model.event.CandlestickEvent;
 import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.*;
+import com.jex.take.data.util.DateUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class WebsocketRequestImpl {
 
@@ -39,11 +45,11 @@ public class WebsocketRequestImpl {
             TickerDTO data = new TickerDTO();
             data.setSymbol(parser.getSymbol());
 
-            data.setTimestamp(
-                    TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts")));
+            data.setDate(new Date(
+                    TimeService.convertCSTInMillisecondToUTC(jsonWrapper.getLong("ts"))));
             JsonWrapper tick = jsonWrapper.getJsonObject("tick");
 
-            data.setTimestamp(TimeService.convertCSTInSecondToUTC(tick.getLong("id")));
+            data.setDate(new Date(TimeService.convertCSTInSecondToUTC(tick.getLong("id"))));
 
             data.setClose(tick.getBigDecimal("close"));
 
@@ -68,8 +74,17 @@ public class WebsocketRequestImpl {
                 connection.send(Channels.klineOkChannel(symbols));
         request.jsonParser = (jsonWrapper) -> {
             String ch = jsonWrapper.getString("data");
-            JSONArray json = JSONArray.parseArray(ch);
+            JSONArray jsonArray = JSONArray.parseArray(ch);
             TickerDTO data = new TickerDTO();
+
+
+            for( Object obj : jsonArray){
+               JSONObject jsonObject = (JSONObject) obj;
+                System.out.println("获取的时间是:"+DateUtil.formatStrUTCToDateStr(jsonObject.getString("timestamp")));
+               data.setSymbol(jsonObject.getString("instrument_id"));
+               data.setDate(DateUtil.formatStrUTCToDate(jsonObject.getString("timestamp")));
+               data.setClose(jsonObject.getBigDecimal("last"));
+            }
             System.out.println(ch);
             return data;
         };
@@ -77,24 +92,24 @@ public class WebsocketRequestImpl {
     }
 
     WebsocketRequest<TickerDTO> subscribeTickerBinanceEvent(
-            List<String> symbols,
+
             SubscriptionListener<TickerDTO> subscriptionListener,
             SubscriptionErrorHandler errorHandler) {
 
         WebsocketRequest<TickerDTO> request =
                 new WebsocketRequest<>(subscriptionListener, errorHandler);
-        if (symbols.size() == 1) {
-            request.name = "Candlestick for binance " + symbols;
-        } else {
-            request.name = "Candlestick for binance " + symbols + " ...";
-        }
-        request.connectionHandler = (connection) ->
-                connection.send(Channels.klineOkChannel(symbols));
+
+        request.connectionHandler = null;
         request.jsonParser = (jsonWrapper) -> {
-            String ch = jsonWrapper.getString("data");
-            JSONArray json = JSONArray.parseArray(ch);
             TickerDTO data = new TickerDTO();
-            System.out.println(ch);
+            if(jsonWrapper.containKey("stream")&& jsonWrapper.containKey("data")){
+
+                String ch = jsonWrapper.getString("data");
+                JSONObject jsonObject = JSON.parseObject(ch);
+                data.setSymbol(jsonObject.getString("s"));
+                data.setClose(jsonObject.getBigDecimal("c"));
+                data.setDate(new Date(jsonObject.getLong("E")));
+            }
             return data;
         };
         return request;

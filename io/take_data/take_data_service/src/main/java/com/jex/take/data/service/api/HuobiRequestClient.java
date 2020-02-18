@@ -22,6 +22,6 @@ public class HuobiRequestClient implements RequestClient {
 
     @Override
     public Map<String, TickerDTO> getTickers() {
-        return RestApiInvoker.callSync(requestImpl.getTickers());
+        return RestApiInvoker.callSync(requestImpl.getHuobiTickers());
     }
 }

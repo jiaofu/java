@@ -7,6 +7,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 
 public class DateUtil {
@@ -29,7 +31,6 @@ public class DateUtil {
     public static final String DATE_TIME_FORMAT_EN = "HH:mm:ss dd/MM/yyyy";//供外部通过反射调用
     public static final String DATE_FORMAT_SECOND = "HH:mm:ss";
     /**
-     *
      * yyyy-MM-dd
      */
     public static final DateFormat dfDate = new SimpleDateFormat(DATE_FORMAT_ZH_CN);
@@ -89,12 +90,6 @@ public class DateUtil {
     }
 
 
-
-
-
-
-
-
     /**
      * String ==> java.util.Date
      *
@@ -135,11 +130,11 @@ public class DateUtil {
         return formatter.parse(formatter.format(date), new ParsePosition(0));
     }
 
-    public static String getDate(){
-      return  dateUtil2String(new Date(),DATE_TIME_FORMAT);
+    public static String getDate() {
+        return dateUtil2String(new Date(), DATE_TIME_FORMAT);
     }
 
-    public static Date getLocalDate(long utcLong){
+    public static Date getLocalDate(long utcLong) {
 
         try {
 
@@ -150,14 +145,51 @@ public class DateUtil {
             /*DateFormat format = new SimpleDateFormat(DATE_TIME_FORMAT_ZH_CN);
             TimeZone utcZone = TimeZone.getTimeZone("GMT+8:00");
             format.setTimeZone(utcZone);*/
-            return  calendar.getTime();
-        }catch (Exception ex ){
+            return calendar.getTime();
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;
 
     }
 
+
+    /**
+     * 2020-02-18T04:08:47.852Z
+     * @param utcTime
+     * @return
+     */
+    public static String formatStrUTCToDateStr(String utcTime) {
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.CHINA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        TimeZone utcZone = TimeZone.getTimeZone("UTC");
+        sf.setTimeZone(utcZone);
+        Date date = null;
+        String dateTime = "";
+        try {
+            date = sf.parse(utcTime);
+            dateTime = sdf.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dateTime;
+    }
+
+    public static Date formatStrUTCToDate(String utcTime) {
+        SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.CHINA);
+
+        TimeZone utcZone = TimeZone.getTimeZone("UTC");
+        sf.setTimeZone(utcZone);
+        Date date = null;
+
+        try {
+            date = sf.parse(utcTime);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return date;
+    }
 
 
 }

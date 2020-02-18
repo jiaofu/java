@@ -7,12 +7,14 @@ import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.BaseUrl;
 import com.jex.take.data.service.util.SubscriptionErrorHandler;
 import com.jex.take.data.service.util.SubscriptionListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 public class WebSocketStreamClientImpl implements SubscriptionClient {
 
     private final SubscriptionOptions options;
@@ -38,13 +40,33 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
 
         WebSocketConnection connection = null;
         String websocketUrl = options.getUri().toLowerCase();
-        if(websocketUrl.contains(BaseUrl.okSocket.toLowerCase())){
+        if (websocketUrl.contains(BaseUrl.okSocket.toLowerCase())) {
             connection = new OkWebSocketConnection(
                     options, request, watchDog, autoClose);
-        }else if(websocketUrl.contains(BaseUrl.binanceSocket.toLowerCase())){
+        } else if (websocketUrl.contains(BaseUrl.binanceSocket.toLowerCase())) {
+
+            // 组合查询 <symbol>@miniTicker
+            StringBuilder wdString = new StringBuilder(BaseUrl.binanceSocket);
+            wdString.append("/stream?streams=");
+            for (String str : options.getTagWs()) {
+                wdString.append(str.toLowerCase());
+                wdString.append("@miniTicker");
+                wdString.append("/");
+            }
+            if (options.getTagWs().size() > 0) {
+                if (wdString.length() > 0) {
+                    wdString.deleteCharAt(wdString.length() - 1);
+                }
+            }
+
+            String streamingUrl = wdString.toString();
+
+
+            log.info("币安发送的websocket 链接:" + streamingUrl);
+            options.setUri(streamingUrl);
             connection = new BinanceWebSocketConnection(
                     options, request, watchDog, autoClose);
-        }else {
+        } else {
             connection = new HuobiWebSocketConnection(
                     options, request, watchDog, autoClose);
         }
@@ -54,7 +76,6 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
         }
         connection.connect();
     }
-
 
 
     private <T> void createConnection(WebsocketRequest<T> request) {
@@ -96,9 +117,9 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
     }
 
     @Override
-    public void subscribeTickerBinanceEvent(String symbols, SubscriptionListener<TickerDTO> callback, SubscriptionErrorHandler errorHandler) {
+    public void subscribeTickerBinanceEvent(SubscriptionListener<TickerDTO> callback, SubscriptionErrorHandler errorHandler) {
         createConnection(requestImpl.subscribeTickerBinanceEvent(
-                parseSymbols(symbols), callback, errorHandler));
+                callback, errorHandler));
     }
 
     @Override

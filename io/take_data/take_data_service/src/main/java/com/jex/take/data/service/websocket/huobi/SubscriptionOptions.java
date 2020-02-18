@@ -4,6 +4,8 @@ package com.jex.take.data.service.websocket.huobi;
 import com.jex.take.data.service.exception.ApiException;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The configuration for the subscription APIs
@@ -15,6 +17,7 @@ public class SubscriptionOptions {
     private int receiveLimitMs = 60_000;
     private int connectionDelayOnFailure = 15;
 
+    private List<String> tagWs = new ArrayList<>();
 
     public SubscriptionOptions(
             SubscriptionOptions options) {
@@ -22,6 +25,7 @@ public class SubscriptionOptions {
         this.isAutoReconnect = options.isAutoReconnect;
         this.receiveLimitMs = options.receiveLimitMs;
         this.connectionDelayOnFailure = options.connectionDelayOnFailure;
+        this.setTagWs(options.getTagWs());
     }
 
     public SubscriptionOptions() {
@@ -35,8 +39,7 @@ public class SubscriptionOptions {
     public void setUri(String uri) {
         try {
             URI u = new URI(uri);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             throw new ApiException(
                     ApiException.INPUT_ERROR, "The URI is incorrect: " + e.getMessage());
         }
@@ -95,5 +98,13 @@ public class SubscriptionOptions {
 
     public String getUri() {
         return uri;
+    }
+
+    public List<String> getTagWs() {
+        return tagWs;
+    }
+
+    public void setTagWs(List<String> tagWs) {
+        this.tagWs = tagWs;
     }
 }

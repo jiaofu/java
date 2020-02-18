@@ -9,10 +9,7 @@ import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.WebSocket;
 import okio.ByteString;
-import org.apache.commons.compress.compressors.deflate64.Deflate64CompressorInputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.Inflater;
 
@@ -29,19 +26,32 @@ public class OkWebSocketConnection extends WebSocketConnection  {
 
 
     //解压
-    private static String uncompress(byte[] bytes) {
-        try (final ByteArrayOutputStream out = new ByteArrayOutputStream();
-             final ByteArrayInputStream in = new ByteArrayInputStream(bytes);
-             final Deflate64CompressorInputStream zin = new Deflate64CompressorInputStream(in)) {
-            final byte[] buffer = new byte[1024];
-            int offset;
-            while (-1 != (offset = zin.read(buffer))) {
-                out.write(buffer, 0, offset);
+    private static String uncompress(ByteBuf buf) {
+        try {
+            byte[] temp = new byte[buf.readableBytes()];
+            ByteBufInputStream bis = new ByteBufInputStream(buf);
+            bis.read(temp);
+            bis.close();
+            Inflater decompresser = new Inflater(true);
+            decompresser.setInput(temp, 0, temp.length);
+            StringBuilder sb = new StringBuilder();
+            byte[] result = new byte[1024];
+            while (!decompresser.finished()) {
+                int resultLength = decompresser.inflate(result);
+                sb.append(new String(result, 0, resultLength, "UTF-8"));
             }
-            return out.toString();
-        } catch (final IOException e) {
-            throw new RuntimeException(e);
+            decompresser.end();
+            return sb.toString();
+        }catch (Exception e) {
+            e.printStackTrace();
         }
+        return "";
+    }
+
+    private static String decode(byte[] array){
+        ByteBuf byteBuf = Unpooled.wrappedBuffer(array);
+        String str = uncompress(byteBuf);
+        return str;
     }
 
     // webSock 相关
@@ -70,42 +80,42 @@ public class OkWebSocketConnection extends WebSocketConnection  {
 
             String data;
             try {
-                String resultWebSocket = uncompress(   bytes.toByteArray());
-                System.out.println(uncompress(   bytes.toByteArray()));
-                data = new String(InternalUtils.decode(bytes.toByteArray()));
-            } catch (IOException e) {
+                 data = decode(bytes.toByteArray());
+              //  log.info(" 收到的消息:"+data);
+            } catch (Exception e) {
                 log.error("[Sub][" + this.connectionId
-                        + "] Receive message error: " + e.getMessage());
+                        + "] Receive message error ok: " + e.getMessage());
                 closeOnError();
                 return;
             }
-            log.debug("[On Message][{}] {}", connectionId, data);
+            if(data == null){
+                return;
+            }
+            if(data.equals("pong")){
+                log.info(" 收到ok的pong");
+                return;
+            }
             JsonWrapper jsonWrapper = JsonWrapper.parseFromString(data);
-            if (jsonWrapper.containKey("status") && !"ok".equals(jsonWrapper.getString("status"))) {
-                String errorCode = jsonWrapper.getStringOrDefault("err-code", "");
-                String errorMsg = jsonWrapper.getStringOrDefault("err-msg", "");
-                onError(errorCode + ": " + errorMsg, null);
-                log.error("[Sub][" + this.connectionId
-                        + "] Got error from server: " + errorCode + "; " + errorMsg);
-                close();
-            } else if (jsonWrapper.containKey("op")) {
-                String op = jsonWrapper.getString("op");
-                if (op.equals("notify")) {
-                    onReceive(jsonWrapper);
-                } else if (op.equals("ping")) {
-                    processPingOnTradingLine(jsonWrapper, webSocket);
-                } else if (op.equals("auth")) {
-                    if (request.authHandler != null) {
-                        request.authHandler.handle(this);
-                    }
-                } else if (op.equals("req")) {
-                    onReceiveAndClose(jsonWrapper);
-                }
-            } else if (jsonWrapper.containKey("ch") || jsonWrapper.containKey("rep")) {
-                onReceiveAndClose(jsonWrapper);
-            } else if (jsonWrapper.containKey("ping")) {
 
-            } else if (jsonWrapper.containKey("subbed")) {
+            if(jsonWrapper.containKey("table")&& jsonWrapper.containKey("data")){
+                onReceiveAndClose(jsonWrapper);
+                //log.info("收到的消息:"+webSocketData);
+            }
+            if (jsonWrapper.containKey("event")) {
+
+                if("error".equals(jsonWrapper.getString("event"))){
+                    String errorCode = jsonWrapper.getStringOrDefault("message", "");
+
+                    onError(errorCode + ": " , null);
+                    log.error("[Sub][" + this.connectionId
+                            + "] Got error from server: " + errorCode + "; " );
+                    close();
+                }
+               else if("subscribe".equals(jsonWrapper.getString("event"))){
+                   String channel =  jsonWrapper.getStringOrDefault("channel", "");;
+                   log.info("ok订阅频道成功:"+channel);
+                }
+
             }
         } catch (Exception e) {
             log.error("[Sub][" + this.connectionId + "] Unexpected error: " + e.getMessage());
@@ -113,7 +123,7 @@ public class OkWebSocketConnection extends WebSocketConnection  {
         }
     }
 
-    private void processPingOnTradingLine(JsonWrapper jsonWrapper, WebSocket webSocket) {
+    private void processPingOnTradingLine(WebSocket webSocket) {
 
         webSocket.send("ping");
     }

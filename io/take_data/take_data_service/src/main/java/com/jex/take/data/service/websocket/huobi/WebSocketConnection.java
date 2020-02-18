@@ -1,5 +1,6 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.alibaba.fastjson.JSONArray;
 import com.jex.take.data.service.enums.ConnectionState;
 import com.jex.take.data.service.exception.ApiException;
 import com.jex.take.data.service.util.JsonWrapper;
@@ -40,7 +41,7 @@ public class WebSocketConnection extends WebSocketListener {
         this.request = request;
         this.autoClose = autoClose;
         try {
-            String host = new URI(options.getUri()).getHost();
+            subscriptionMarketUrl = options.getUri();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -135,6 +136,7 @@ public class WebSocketConnection extends WebSocketListener {
         }
     }
 
+
     @Override
     public void onClosed(WebSocket webSocket, int code, String reason) {
         super.onClosed(webSocket, code, reason);
@@ -149,7 +151,7 @@ public class WebSocketConnection extends WebSocketListener {
         super.onOpen(webSocket, response);
         this.webSocket = webSocket;
         log.info("[Sub][" + this.connectionId + "] Connected to server");
-        watchDog.onConnectionCreated(this);
+        watchDog. onConnectionCreated(this);
         if (request.connectionHandler != null) {
             request.connectionHandler.handle(this);
         }
