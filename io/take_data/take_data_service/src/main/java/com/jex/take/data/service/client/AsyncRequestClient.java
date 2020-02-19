@@ -18,4 +18,9 @@ public interface AsyncRequestClient {
         return HuobiApiInternalFactory.getInstance().createAsyncRequestClient(
                 new RequestOptions());
     }
+
+     static AsyncRequestClient create(RequestOptions requestOptions) {
+        return HuobiApiInternalFactory.getInstance().createAsyncRequestClient(
+                requestOptions);
+    }
 }

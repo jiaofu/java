@@ -24,14 +24,14 @@ public class CacheMemory {
     public void init(){
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.setUrl(BaseUrl.huobiApi);
-        AsyncRequestClient   huobiApiClinet= AsyncRequestClient.create();
+        AsyncRequestClient   huobiApiClinet= AsyncRequestClient.create(requestOptions);
 
 
         requestOptions.setUrl(BaseUrl.okApi);
-        AsyncRequestClient  okApiClient = AsyncRequestClient.create();
+        AsyncRequestClient  okApiClient = AsyncRequestClient.create(requestOptions);
 
         requestOptions.setUrl(BaseUrl.binanceiApi);
-        AsyncRequestClient  binanceApiClinet = AsyncRequestClient.create();
+        AsyncRequestClient  binanceApiClinet = AsyncRequestClient.create(requestOptions);
 
         apiMap.put(ExchangeEnum.huobiTicket.getDesc(),huobiApiClinet);
         apiMap.put(ExchangeEnum.okTicket.getDesc(),okApiClient);

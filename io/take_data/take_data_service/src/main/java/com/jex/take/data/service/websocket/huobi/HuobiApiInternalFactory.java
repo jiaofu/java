@@ -44,7 +44,6 @@ public final class HuobiApiInternalFactory {
         } catch (Exception e) {
 
         }
-        RestApiRequestImpl requestImpl = new RestApiRequestImpl( requestOptions);
         SubscriptionClient webSocketStreamClient = new WebSocketStreamClientImpl(
               subscriptionOptions);
         return webSocketStreamClient;

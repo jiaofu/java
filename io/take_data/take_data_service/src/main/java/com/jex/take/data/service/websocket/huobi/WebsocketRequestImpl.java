@@ -76,16 +76,12 @@ public class WebsocketRequestImpl {
             String ch = jsonWrapper.getString("data");
             JSONArray jsonArray = JSONArray.parseArray(ch);
             TickerDTO data = new TickerDTO();
-
-
             for( Object obj : jsonArray){
                JSONObject jsonObject = (JSONObject) obj;
-                System.out.println("获取的时间是:"+DateUtil.formatStrUTCToDateStr(jsonObject.getString("timestamp")));
                data.setSymbol(jsonObject.getString("instrument_id"));
                data.setDate(DateUtil.formatStrUTCToDate(jsonObject.getString("timestamp")));
                data.setClose(jsonObject.getBigDecimal("last"));
             }
-            System.out.println(ch);
             return data;
         };
         return request;

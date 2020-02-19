@@ -28,65 +28,66 @@ public class RequsetDataImpl implements RequsetData {
 
     @Override
     public void getApiData() {
-        huobiApi();
-        okApi();
+        //huobiApi();
+        //okApi();
         binanceApi();
     }
 
 
-    private void huobiApi(){
+    private void huobiApi() {
         String from = ExchangeEnum.huobiTicket.getDesc();
         Boolean work = webSocketIsWork(from);
 
-        if(work){
+        if (work) {
             return;
         }
         AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from);
-        asyncRequestClient.getHuobiTickers(callBack ->filteSymbol(callBack,from));
+        asyncRequestClient.getHuobiTickers(callBack -> filteSymbol(callBack, from));
 
     }
 
-    private void okApi(){
+    private void okApi() {
 
         String from = ExchangeEnum.okTicket.getDesc();
         Boolean work = webSocketIsWork(from);
 
-        if(work){
+        if (work) {
             return;
         }
         AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from);
-        asyncRequestClient.getOkTickers(callBack ->filteSymbol(callBack,from));
+        asyncRequestClient.getOkTickers(callBack -> filteSymbol(callBack, from));
     }
 
-    private void binanceApi(){
+    private void binanceApi() {
         String from = ExchangeEnum.binanceTicket.getDesc();
         Boolean work = webSocketIsWork(from);
 
-        if(work){
+        if (work) {
             return;
         }
         AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from);
-        asyncRequestClient.getHuobiTickers(callBack ->filteSymbol(callBack,from));
+        asyncRequestClient.getBinanceTickers(callBack -> filteSymbol(callBack, from));
     }
-    private void filteSymbol(AsyncResult<Map<String, TickerDTO>> callback,String from ){
 
-        if(!callback.succeeded()){
-            log.info("请求api出现异常"+callback.getException());
+    private void filteSymbol(AsyncResult<Map<String, TickerDTO>> callback, String from) {
+
+        if (!callback.succeeded()) {
+            log.info("请求api出现异常" + callback.getException());
             return;
         }
-        List<String> symbols = Symbol.getSymbols(ExchangeEnum.huobiTicket.getDesc());
-        Map<String, TickerDTO> map =  callback.getData();
-        for(String name :symbols ){
+        List<String> symbols = Symbol.getSymbols(from);
+        Map<String, TickerDTO> map = callback.getData();
+        for (String name : symbols) {
             TickerDTO tickerDTO = map.get(name);
-            if(tickerDTO != null){
-                handleTicket(from,apiType,tickerDTO);
+            if (tickerDTO != null) {
+                handleTicket(from, apiType, tickerDTO);
             }
         }
 
     }
 
-    private Boolean webSocketIsWork(String from){
-        WebSocketConnection webSocketConnection = CacheMemory.socketMap.get(from);
+    private Boolean webSocketIsWork(String from) {
+       WebSocketConnection webSocketConnection = CacheMemory.socketMap.get(from);
         long now = System.currentTimeMillis();
         if (webSocketConnection != null && webSocketConnection.getState() == ConnectionState.CONNECTED && (webSocketConnection.getLastReceivedTime() + interval) > now) {
             return true;
@@ -121,7 +122,7 @@ public class RequsetDataImpl implements RequsetData {
     private void huobiSocket() {
         String from = ExchangeEnum.huobiTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        subscriptionOptions.setUri(BaseUrl.huobiApi);
+        subscriptionOptions.setUri(BaseUrl.huobiSocket);
         subscriptionOptions.setFromExchangeName(from);
         subscriptionOptions.setFromTaskName("ticket");
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
@@ -158,7 +159,7 @@ public class RequsetDataImpl implements RequsetData {
     }
 
     private void handleTicket(String from, String type, TickerDTO ticket) {
-        log.info(" 来自" + from + "的" + type + ",请求,symbol:" + ticket.getClose() + "时间" + ticket.getClose());
+        log.info(" 来自" + from + "的" + type + ",请求,symbol:" + ticket.getSymbol() + "  时间" + ticket.getClose());
     }
 
     private void handleError(String from, ApiException wor) {

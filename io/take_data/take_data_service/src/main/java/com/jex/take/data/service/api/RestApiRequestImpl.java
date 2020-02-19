@@ -3,6 +3,7 @@ package com.jex.take.data.service.api;
 import com.alibaba.fastjson.JSON;
 import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.util.*;
+import com.jex.take.data.util.DateUtil;
 import okhttp3.Request;
 
 import java.net.URL;
@@ -62,6 +63,7 @@ public class RestApiRequestImpl {
                 TickerDTO statistics = new TickerDTO();
                 statistics.setDate(new Date(ts));
                 statistics.setClose(item.getBigDecimal("close"));
+                statistics.setSymbol(item.getString("symbol"));
                 map.put(item.getString("symbol"), statistics);
             });
             return map;
@@ -80,6 +82,8 @@ public class RestApiRequestImpl {
                 dataArray.forEach(item -> {
                     TickerDTO statistics = new TickerDTO();
                     statistics.setClose(item.getBigDecimal("last"));
+                    statistics.setDate( DateUtil.formatStrUTCToDate(item.getString("timestamp")));
+                    statistics.setSymbol(item.getString("product_id"));
                     map.put(item.getString("product_id"), statistics);
                 });
 
@@ -102,6 +106,8 @@ public class RestApiRequestImpl {
                 dataArray.forEach(item -> {
                     TickerDTO statistics = new TickerDTO();
                     statistics.setClose(item.getBigDecimal("price"));
+                    statistics.setSymbol(item.getString("symbol"));
+                    statistics.setDate(new Date());
                     map.put(item.getString("symbol"), statistics);
                 });
 

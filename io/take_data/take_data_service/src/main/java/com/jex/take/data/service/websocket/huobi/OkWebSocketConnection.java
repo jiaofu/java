@@ -81,7 +81,6 @@ public class OkWebSocketConnection extends WebSocketConnection  {
             String data;
             try {
                  data = decode(bytes.toByteArray());
-              //  log.info(" 收到的消息:"+data);
             } catch (Exception e) {
                 log.error("[Sub][" + this.connectionId
                         + "] Receive message error ok: " + e.getMessage());
@@ -99,7 +98,6 @@ public class OkWebSocketConnection extends WebSocketConnection  {
 
             if(jsonWrapper.containKey("table")&& jsonWrapper.containKey("data")){
                 onReceiveAndClose(jsonWrapper);
-                //log.info("收到的消息:"+webSocketData);
             }
             if (jsonWrapper.containKey("event")) {
 
