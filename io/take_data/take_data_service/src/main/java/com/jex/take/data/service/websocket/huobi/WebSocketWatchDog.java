@@ -1,5 +1,6 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.jex.take.data.service.control.CacheMemory;
 import com.jex.take.data.service.enums.ConnectionState;
 import com.jex.take.data.service.util.BaseUrl;
 import org.slf4j.Logger;
@@ -57,5 +58,7 @@ public class WebSocketWatchDog {
 
     void onClosedNormally(WebSocketConnection connection) {
         TIME_HELPER.remove(connection);
+        // 取消
+        CacheMemory.socketMap.put(connection.getFromExchangeName(),null);
     }
 }

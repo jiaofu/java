@@ -99,7 +99,7 @@ public  class RestApiInvoker {
                 public void onFailure(Call call, IOException e) {
                     FailedAsyncResult<T> result = new FailedAsyncResult<>(
                             new ApiException(ApiException.RUNTIME_ERROR,
-                                    "[Invoking] Rest api call failed"));
+                                    "[Invoking] Rest api call failed"+e.getMessage()));
                     try {
                         callback.onResponse(result);
                     } catch (Exception exception) {
@@ -126,7 +126,7 @@ public  class RestApiInvoker {
                     } catch (Exception e) {
                         FailedAsyncResult<T> result = new FailedAsyncResult<>(
                                 new ApiException(
-                                        ApiException.RUNTIME_ERROR, "[Invoking] Rest api call failed"));
+                                        ApiException.RUNTIME_ERROR, "[Invoking] Rest api call failed"+e.getMessage()));
                         callback.onResponse(result);
                         return;
                     }

@@ -28,6 +28,10 @@ public class WebSocketConnection extends WebSocketListener {
 
 
 
+    private String  fromExchangeName;
+    private String  fromTaskName;
+
+
     WebSocketConnection(
 
             SubscriptionOptions options,
@@ -39,6 +43,8 @@ public class WebSocketConnection extends WebSocketListener {
         this.autoClose = autoClose;
         try {
             subscriptionMarketUrl = options.getUri();
+            this.fromExchangeName = options.getFromExchangeName();
+            this.fromTaskName = options.getFromTaskName();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -59,9 +65,7 @@ public class WebSocketConnection extends WebSocketListener {
         return this.connectionId;
     }
 
-    long getLastReceivedTime() {
-        return this.lastReceivedTime;
-    }
+
     void reConnect(int delayInSecond) {
         log.warn("[Sub][" + this.connectionId + "] Reconnecting after " + delayInSecond + " seconds later");
         if (webSocket != null) {
@@ -179,7 +183,19 @@ public class WebSocketConnection extends WebSocketListener {
         }
     }
 
+    public void setLastReceivedTime(long lastReceivedTime) {
+        this.lastReceivedTime = lastReceivedTime;
+    }
 
+    public long getLastReceivedTime() {
+        return this.lastReceivedTime;
+    }
 
+    public String getFromExchangeName() {
+        return fromExchangeName;
+    }
 
+    public String getFromTaskName() {
+        return fromTaskName;
+    }
 }

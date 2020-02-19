@@ -19,14 +19,20 @@ public class SubscriptionOptions {
 
     private List<String> tagWs = new ArrayList<>();
 
+    private String  fromExchangeName;
+    private String  fromTaskName;
+
     public SubscriptionOptions(
             SubscriptionOptions options) {
         this.uri = options.uri;
         this.isAutoReconnect = options.isAutoReconnect;
         this.receiveLimitMs = options.receiveLimitMs;
         this.connectionDelayOnFailure = options.connectionDelayOnFailure;
-        this.setTagWs(options.getTagWs());
-    }
+        this.tagWs = options.getTagWs();
+        this.fromExchangeName = options.fromExchangeName;
+        this.fromTaskName = options.fromTaskName;}
+
+
 
     public SubscriptionOptions() {
     }
@@ -106,5 +112,21 @@ public class SubscriptionOptions {
 
     public void setTagWs(List<String> tagWs) {
         this.tagWs = tagWs;
+    }
+
+    public String getFromExchangeName() {
+        return fromExchangeName;
+    }
+
+    public void setFromExchangeName(String fromExchangeName) {
+        this.fromExchangeName = fromExchangeName;
+    }
+
+    public String getFromTaskName() {
+        return fromTaskName;
+    }
+
+    public void setFromTaskName(String fromTaskName) {
+        this.fromTaskName = fromTaskName;
     }
 }

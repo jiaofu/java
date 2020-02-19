@@ -1,7 +1,9 @@
 package com.jex.take.data.service.websocket.huobi;
 
+import com.jex.take.data.service.control.CacheMemory;
 import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
+import com.jex.take.data.service.enums.ExchangeEnum;
 import com.jex.take.data.service.model.event.CandlestickEvent;
 import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.BaseUrl;
@@ -10,6 +12,7 @@ import com.jex.take.data.service.util.SubscriptionListener;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 public class WebSocketStreamClientImpl implements SubscriptionClient {
@@ -19,9 +22,7 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
 
     private final WebsocketRequestImpl requestImpl;
 
-    private final List<WebSocketConnection> connections = new LinkedList<>();
 
-    Map<String,WebSocketConnection> map = new HashMap<>();
 
     public WebSocketStreamClientImpl(SubscriptionOptions options) {
 
@@ -36,11 +37,13 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
             watchDog = new WebSocketWatchDog(options);
         }
 
+        String key = null;
         WebSocketConnection connection = null;
         String websocketUrl = options.getUri().toLowerCase();
         if (websocketUrl.contains(BaseUrl.okSocket.toLowerCase())) {
             connection = new OkWebSocketConnection(
                     options, request, watchDog, autoClose);
+            key = ExchangeEnum.okTicket.getDesc();
         } else if (websocketUrl.contains(BaseUrl.binanceSocket.toLowerCase())) {
 
             // 组合查询 <symbol>@miniTicker
@@ -56,7 +59,7 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
                     wdString.deleteCharAt(wdString.length() - 1);
                 }
             }
-
+            key = ExchangeEnum.binanceTicket.getDesc();
             String streamingUrl = wdString.toString();
 
 
@@ -65,12 +68,16 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
             connection = new BinanceWebSocketConnection(
                     options, request, watchDog, autoClose);
         } else {
+            key = ExchangeEnum.huobiTicket.getDesc();
             connection = new HuobiWebSocketConnection(
                     options, request, watchDog, autoClose);
         }
 
         if (autoClose == false) {
-            connections.add(connection);
+           WebSocketConnection webSocketConnectionList = CacheMemory.socketMap.get(key);
+           if(webSocketConnectionList == null){
+               CacheMemory.socketMap.put(key,connection);
+           }
         }
         connection.connect();
     }

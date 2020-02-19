@@ -59,7 +59,7 @@ public interface SubscriptionClient {
 
     /**
      * 币安的ticker
-     * @param symbols
+
      * @param callback
      * @param errorHandler
      */

@@ -50,7 +50,7 @@ public class RestApiRequestImpl {
         }
     }
 
-
+    //请求全部的数据
    public RestApiRequest<Map<String, TickerDTO>> getHuobiTickers() {
         RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/market/tickers", UrlParamsBuilder.build());
@@ -68,7 +68,7 @@ public class RestApiRequestImpl {
         });
         return request;
     }
-
+    //请求全部的数据
     public RestApiRequest<Map<String, TickerDTO>> getOkTickers() {
         RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/api/spot/v3/instruments/ticker", UrlParamsBuilder.build());
@@ -89,6 +89,8 @@ public class RestApiRequestImpl {
         return request;
     }
 
+
+    //请求全部的数据
     public RestApiRequest<Map<String, TickerDTO>> getBinanceTickers() {
         RestApiRequest<Map<String, TickerDTO>> request = new RestApiRequest<>();
         request.request = createRequestByGet("/api/v3/ticker/price", UrlParamsBuilder.build());
