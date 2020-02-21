@@ -1,9 +1,7 @@
 package com.jex.take.data.cron.job;
 
 import com.jex.take.data.service.control.RequsetData;
-import com.jex.take.data.service.util.BaseUrl;
-import com.jex.take.data.service.websocket.huobi.SubscriptionClient;
-import com.jex.take.data.service.websocket.huobi.SubscriptionOptions;
+import com.jex.take.data.service.control.SaveDbData;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -21,11 +19,14 @@ public class PriceJob  implements Job, Serializable {
 
     @Resource
     RequsetData requsetData;
+    @Resource
+    SaveDbData saveDbData;
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
             requsetData.getApiData();
 
+            saveDbData.checkList();
         }catch (Exception ex){
           log.error("出现异常情况",ex);
         }

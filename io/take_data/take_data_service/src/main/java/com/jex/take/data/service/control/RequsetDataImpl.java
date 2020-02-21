@@ -15,6 +15,7 @@ import com.jex.take.data.service.websocket.huobi.WebSocketConnection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -26,10 +27,13 @@ public class RequsetDataImpl implements RequsetData {
     private final static String apiType = "api";
     private final static long interval = 60 * 1000;
 
+    @Resource
+    SaveDbData saveDbData;
+
     @Override
     public void getApiData() {
-        //huobiApi();
-        //okApi();
+        huobiApi();
+        okApi();
         binanceApi();
     }
 
@@ -160,6 +164,7 @@ public class RequsetDataImpl implements RequsetData {
 
     private void handleTicket(String from, String type, TickerDTO ticket) {
         log.info(" 来自" + from + "的" + type + ",请求,symbol:" + ticket.getSymbol() + "  时间" + ticket.getClose());
+        saveDbData.insertList(ticket);
     }
 
     private void handleError(String from, ApiException wor) {
