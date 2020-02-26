@@ -1,14 +1,17 @@
-package com.jex.take.data.service.control;
+package com.jex.take.data.service.control.impl;
 
 
 import com.jex.take.data.service.client.AsyncRequestClient;
+import com.jex.take.data.service.control.CacheMemory;
+import com.jex.take.data.service.control.RequsetData;
+import com.jex.take.data.service.control.SaveTicketData;
+import com.jex.take.data.service.control.Symbol;
 import com.jex.take.data.service.dto.TickerDTO;
 import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.enums.ConnectionState;
 import com.jex.take.data.service.enums.ExchangeEnum;
 import com.jex.take.data.service.exception.ApiException;
 import com.jex.take.data.service.model.event.CandlestickEvent;
-import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.BaseUrl;
 import com.jex.take.data.service.util.Channels;
 import com.jex.take.data.service.util.result.AsyncResult;
@@ -31,7 +34,7 @@ public class RequsetDataImpl implements RequsetData {
     private final static long interval = 60 * 1000;
 
     @Resource
-    SaveDbData saveDbData;
+    SaveTicketData saveTicketData;
 
     @Override
     public void getApiData() {
@@ -213,7 +216,7 @@ public class RequsetDataImpl implements RequsetData {
 
     private void handleTicket(String from, String type, TickerDTO ticket) {
         log.info(" 来自" + from + "的" + type + ",请求,symbol:" + ticket.getSymbol() + "  时间" + ticket.getClose());
-        saveDbData.insertList(ticket);
+        saveTicketData.insertList(ticket);
     }
     private void handleKline(String from, CandlestickEvent candlestickEvent){
         log.info(" 来自" + from + "的,请求,symbol:" + candlestickEvent.getSymbol() + "  时间" + candlestickEvent.getTimestamp());

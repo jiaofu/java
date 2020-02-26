@@ -1,7 +1,7 @@
 package com.jex.take.data.cron.job;
 
 import com.jex.take.data.service.control.RequsetData;
-import com.jex.take.data.service.control.SaveDbData;
+import com.jex.take.data.service.control.SaveTicketData;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -20,13 +20,13 @@ public class PriceJob  implements Job, Serializable {
     @Resource
     RequsetData requsetData;
     @Resource
-    SaveDbData saveDbData;
+    SaveTicketData saveTicketData;
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
             requsetData.getApiData();
 
-            saveDbData.checkList();
+            saveTicketData.checkList();
         }catch (Exception ex){
           log.error("出现异常情况",ex);
         }

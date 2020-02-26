@@ -1,17 +1,16 @@
-package com.jex.take.data.service.control;
+package com.jex.take.data.service.control.impl;
 
+import com.jex.take.data.service.control.SaveTicketData;
 import com.jex.take.data.service.dto.TickerDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Slf4j
 @Service
-public class SaveDbDataIImpl implements SaveDbData {
+public class SaveTicketDataIImpl implements SaveTicketData {
     public static Queue<TickerDTO> queus = new ConcurrentLinkedQueue();
     public static long lastInsert = System.currentTimeMillis();
     public static int limitSize = 100;
@@ -37,12 +36,14 @@ public class SaveDbDataIImpl implements SaveDbData {
     public void checkList() {
         if (queus.size() >= limitSize || lastInsert + limitSecond < System.currentTimeMillis()) {
             int count = queus.size() > limitSize ? limitSize : queus.size();
+            Map<String,TickerDTO> map =new HashMap<>();
             List<TickerDTO> list = new ArrayList<>();
             for (int i = 0; i < count; i++) {
                 TickerDTO tickerDTO = queus.poll();
                 if (tickerDTO != null) {
-                    list.add(tickerDTO);
+                    map.put(tickerDTO.getSymbol()+tickerDTO.getDate().getTime(),tickerDTO);
                 }
+                map.entrySet().stream().forEach(q->list.add(tickerDTO));
             }
             if (list.size() > 0) {
                 insertSave(list);
