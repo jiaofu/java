@@ -2,5 +2,6 @@ package com.jex.take.data.service.control;
 
 public interface RequsetData {
     void getApiData();
-    void getWebSocketData();
+    void getTicketSocketData();
+    void getKlineSocketData();
 }

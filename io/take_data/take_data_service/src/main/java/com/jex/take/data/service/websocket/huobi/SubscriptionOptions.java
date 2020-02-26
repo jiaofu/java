@@ -17,7 +17,7 @@ public class SubscriptionOptions {
     private int receiveLimitMs = 60_000;
     private int connectionDelayOnFailure = 15;
 
-    private List<String> tagWs = new ArrayList<>();
+
 
     private String  fromExchangeName;
     private String  fromTaskName;
@@ -28,7 +28,7 @@ public class SubscriptionOptions {
         this.isAutoReconnect = options.isAutoReconnect;
         this.receiveLimitMs = options.receiveLimitMs;
         this.connectionDelayOnFailure = options.connectionDelayOnFailure;
-        this.tagWs = options.getTagWs();
+
         this.fromExchangeName = options.fromExchangeName;
         this.fromTaskName = options.fromTaskName;}
 
@@ -106,13 +106,6 @@ public class SubscriptionOptions {
         return uri;
     }
 
-    public List<String> getTagWs() {
-        return tagWs;
-    }
-
-    public void setTagWs(List<String> tagWs) {
-        this.tagWs = tagWs;
-    }
 
     public String getFromExchangeName() {
         return fromExchangeName;

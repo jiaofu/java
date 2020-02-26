@@ -42,6 +42,26 @@ public abstract class Channels {
         List<String> lists = new ArrayList<>();
         for (String str : symbols) {
             StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("spot/candle60s:");
+            stringBuilder.append(str.toUpperCase());
+            lists.add(stringBuilder.toString());
+        }
+        json.put("args", lists);
+
+        String subscribe = json.toJSONString();
+        log.info(" ok的订阅的主题为:" + subscribe);
+
+        return subscribe;
+    }
+
+    public static String tickerOkChannel(List<String> symbols) {
+
+        //   {"op": "subscribe", "args": ["spot/ticker:ETH-USDT","spot/candle60s:ETH-USDT"]}
+        JSONObject json = new JSONObject();
+        json.put("op", "subscribe");
+        List<String> lists = new ArrayList<>();
+        for (String str : symbols) {
+            StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("spot/ticker:");
             stringBuilder.append(str.toUpperCase());
             lists.add(stringBuilder.toString());
@@ -53,5 +73,47 @@ public abstract class Channels {
 
         return subscribe;
     }
+
+    private static String ticketBinanceChannel(List<String> stringList){
+        // 组合查询 <symbol>@miniTicker
+        StringBuilder wdString = new StringBuilder(BaseUrl.binanceSocket);
+        wdString.append("/stream?streams=");
+        for (String str : stringList) {
+            wdString.append(str.toLowerCase());
+            wdString.append("@miniTicker");
+            wdString.append("/");
+        }
+        if (stringList.size() > 0) {
+            if (wdString.length() > 0) {
+                wdString.deleteCharAt(wdString.length() - 1);
+            }
+        }
+        return wdString.toString();
+    }
+
+
+    /**
+     * 只有一分钟k 线
+     * @param stringList
+     * @return
+     */
+    public static String klineBinanceChannel(List<String> stringList){
+        // 组合查询 <symbol>@miniTicker
+        StringBuilder wdString = new StringBuilder(BaseUrl.binanceSocket);
+        wdString.append("/stream?streams=");
+        for (String str : stringList) {
+            wdString.append(str.toLowerCase());
+            wdString.append("@kline_1m");
+            wdString.append("/");
+        }
+        if (stringList.size() > 0) {
+            if (wdString.length() > 0) {
+                wdString.deleteCharAt(wdString.length() - 1);
+            }
+        }
+        return wdString.toString();
+    }
+
+
 
 }

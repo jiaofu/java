@@ -31,11 +31,19 @@ public interface SubscriptionClient {
      * @param callback The implementation is required. onReceive will be called if receive server's update.
      * @param errorHandler The error handler will be called if subscription failed or error happen between client and Huobi server.
      */
-    void subscribeCandlestickEvent(String symbols, CandlestickInterval interval,
+    void subscribeCandlestickHuobiEvent(String symbols, CandlestickInterval interval,
                                    SubscriptionListener<CandlestickEvent> callback,
                                    SubscriptionErrorHandler errorHandler);
 
 
+
+    void subscribeCandlestickOKEvent(String symbols,
+                                        SubscriptionListener<CandlestickEvent> callback,
+                                        SubscriptionErrorHandler errorHandler);
+
+    void subscribeCandlestickBinanceEvent(
+                                        SubscriptionListener<CandlestickEvent> callback,
+                                        SubscriptionErrorHandler errorHandler);
     /**
      * 火币的ticker(火币的ticker 主要取的是 k 线,没有找到一直推送的数据)
      * @param symbols

@@ -37,38 +37,21 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
             watchDog = new WebSocketWatchDog(options);
         }
 
-        String key = null;
+        String key = options.getFromExchangeName()+"_"+options.getFromTaskName();
         WebSocketConnection connection = null;
         String websocketUrl = options.getUri().toLowerCase();
         if (websocketUrl.contains(BaseUrl.okSocket.toLowerCase())) {
             connection = new OkWebSocketConnection(
                     options, request, watchDog, autoClose);
-            key = ExchangeEnum.okTicket.getDesc();
+
         } else if (websocketUrl.contains(BaseUrl.binanceSocket.toLowerCase())) {
 
-            // 组合查询 <symbol>@miniTicker
-            StringBuilder wdString = new StringBuilder(BaseUrl.binanceSocket);
-            wdString.append("/stream?streams=");
-            for (String str : options.getTagWs()) {
-                wdString.append(str.toLowerCase());
-                wdString.append("@miniTicker");
-                wdString.append("/");
-            }
-            if (options.getTagWs().size() > 0) {
-                if (wdString.length() > 0) {
-                    wdString.deleteCharAt(wdString.length() - 1);
-                }
-            }
-            key = ExchangeEnum.binanceTicket.getDesc();
-            String streamingUrl = wdString.toString();
 
 
-            log.info("币安发送的websocket 链接:" + streamingUrl);
-            options.setUri(streamingUrl);
             connection = new BinanceWebSocketConnection(
                     options, request, watchDog, autoClose);
         } else {
-            key = ExchangeEnum.huobiTicket.getDesc();
+
             connection = new HuobiWebSocketConnection(
                     options, request, watchDog, autoClose);
         }
@@ -96,17 +79,29 @@ public class WebSocketStreamClientImpl implements SubscriptionClient {
             String symbols,
             CandlestickInterval interval,
             SubscriptionListener<CandlestickEvent> callback) {
-        subscribeCandlestickEvent(symbols, interval, callback, null);
+        subscribeCandlestickHuobiEvent(symbols, interval, callback, null);
     }
 
     @Override
-    public void subscribeCandlestickEvent(
+    public void subscribeCandlestickHuobiEvent(
             String symbols,
             CandlestickInterval interval,
             SubscriptionListener<CandlestickEvent> subscriptionListener,
             SubscriptionErrorHandler errorHandler) {
-        createConnection(requestImpl.subscribeCandlestickEvent(
+        createConnection(requestImpl.subscribeHuobiCandlestickEvent(
                 parseSymbols(symbols), interval, subscriptionListener, errorHandler));
+    }
+
+    @Override
+    public void subscribeCandlestickOKEvent(String symbols, SubscriptionListener<CandlestickEvent> callback, SubscriptionErrorHandler errorHandler) {
+        createConnection(requestImpl.subscribeCandlestickOkEvent(
+                parseSymbols(symbols),  callback, errorHandler));
+    }
+
+    @Override
+    public void subscribeCandlestickBinanceEvent(SubscriptionListener<CandlestickEvent> callback, SubscriptionErrorHandler errorHandler) {
+        createConnection(requestImpl.subscribeCandlestickBinanceEvent(
+                callback, errorHandler));
     }
 
     @Override

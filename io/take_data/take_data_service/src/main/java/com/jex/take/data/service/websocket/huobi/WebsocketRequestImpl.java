@@ -11,6 +11,7 @@ import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.*;
 import com.jex.take.data.util.DateUtil;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,7 +67,7 @@ public class WebsocketRequestImpl {
         WebsocketRequest<TickerDTO> request =
                 new WebsocketRequest<>(subscriptionListener, errorHandler);
         if (symbols.size() == 1) {
-            request.name = "Candlestick for ok " + symbols;
+            request.name = "ticket for ok " + symbols;
         } else {
             request.name = "Candlestick for ok " + symbols + " ...";
         }
@@ -112,8 +113,89 @@ public class WebsocketRequestImpl {
     }
 
 
+    WebsocketRequest<CandlestickEvent> subscribeCandlestickBinanceEvent(
 
-    WebsocketRequest<CandlestickEvent> subscribeCandlestickEvent(
+            SubscriptionListener<CandlestickEvent> subscriptionListener,
+            SubscriptionErrorHandler errorHandler) {
+
+        WebsocketRequest<CandlestickEvent> request =
+                new WebsocketRequest<>(subscriptionListener, errorHandler);
+
+        request.connectionHandler = null;
+        request.jsonParser = (jsonWrapper) -> {
+            CandlestickEvent candlestickEvent = new CandlestickEvent();
+
+
+            candlestickEvent.setTimestamp(  jsonWrapper.getLong("E"));
+            candlestickEvent.setSymbol(jsonWrapper.getString("s"));
+            candlestickEvent.setInterval(CandlestickInterval.MIN1);
+            Candlestick data = new Candlestick();
+
+            // Parse candlestick data
+            JSONObject candlestickNode = jsonWrapper.getJsonObject("k").getJson();
+
+            data.setOpen(candlestickNode.getBigDecimal("o"));
+            data.setClose(candlestickNode.getBigDecimal("c"));
+            data.setHigh(candlestickNode.getBigDecimal("h"));
+            data.setLow(candlestickNode.getBigDecimal("l"));
+            data.setVolume(candlestickNode.getBigDecimal("v"));
+            candlestickEvent.setData(data);
+
+            return candlestickEvent;
+        };
+        return request;
+    }
+
+    WebsocketRequest<CandlestickEvent> subscribeCandlestickOkEvent(
+            List<String> symbols,
+            SubscriptionListener<CandlestickEvent> subscriptionListener,
+            SubscriptionErrorHandler errorHandler) {
+
+        WebsocketRequest<CandlestickEvent> request =
+                new WebsocketRequest<>(subscriptionListener, errorHandler);
+        if (symbols.size() == 1) {
+            request.name = "Candlestick for ok " + symbols;
+        } else {
+            request.name = "Candlestick for ok " + symbols + " ...";
+        }
+        request.connectionHandler = (connection) ->
+                connection.send(Channels.tickerOkChannel(symbols));
+        request.jsonParser = (jsonWrapper) -> {
+            CandlestickEvent candlestickEvent = new CandlestickEvent();
+            String ch = jsonWrapper.getString("data");
+
+            JSONArray jsonArray = JSONArray.parseArray(ch);
+            candlestickEvent.setInterval(CandlestickInterval.MIN1);
+
+            candlestickEvent.setTimestamp(System.currentTimeMillis());
+
+            Candlestick data = new Candlestick();
+
+            for( Object obj : jsonArray){
+                JSONObject jsonObject = (JSONObject) obj;
+               String jsonCandle = jsonObject.getString("candle");
+                List<String> listCandle = JSON.parseArray(jsonCandle,String.class);
+                if(listCandle != null && listCandle.size()>0){
+                    candlestickEvent.setTimestamp(DateUtil.formatStrUTCToDate(listCandle.get(0)).getTime());
+                    data.setOpen(new BigDecimal(listCandle.get(1)));
+                    data.setHigh(new BigDecimal(listCandle.get(2)));
+                    data.setLow(new BigDecimal(listCandle.get(3)));
+                    data.setClose(new BigDecimal(listCandle.get(4)));
+                    data.setVolume(new BigDecimal(listCandle.get(5)));
+                }
+                candlestickEvent.setData(data);
+                String instrumentId =  jsonObject.getString("instrument_id");
+                candlestickEvent.setSymbol(instrumentId);
+            }
+            candlestickEvent.setData(data);
+            return candlestickEvent;
+        };
+        return request;
+    }
+
+
+
+    WebsocketRequest<CandlestickEvent> subscribeHuobiCandlestickEvent(
             List<String> symbols,
             CandlestickInterval interval,
             SubscriptionListener<CandlestickEvent> subscriptionListener,

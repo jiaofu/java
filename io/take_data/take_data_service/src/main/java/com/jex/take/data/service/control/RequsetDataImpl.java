@@ -7,7 +7,10 @@ import com.jex.take.data.service.enums.CandlestickInterval;
 import com.jex.take.data.service.enums.ConnectionState;
 import com.jex.take.data.service.enums.ExchangeEnum;
 import com.jex.take.data.service.exception.ApiException;
+import com.jex.take.data.service.model.event.CandlestickEvent;
+import com.jex.take.data.service.model.event.CandlestickReqEvent;
 import com.jex.take.data.service.util.BaseUrl;
+import com.jex.take.data.service.util.Channels;
 import com.jex.take.data.service.util.result.AsyncResult;
 import com.jex.take.data.service.websocket.huobi.SubscriptionClient;
 import com.jex.take.data.service.websocket.huobi.SubscriptionOptions;
@@ -107,23 +110,44 @@ public class RequsetDataImpl implements RequsetData {
 
     public void startWebSocket(String from) {
         if (from.equals(ExchangeEnum.huobiTicket.getDesc())) {
-            huobiSocket();
+            huobiTicketSocket();
         } else if (from.equals(ExchangeEnum.okTicket.getDesc())) {
-            okWebSocket();
+            okTicketSocket();
         } else if (from.equals(ExchangeEnum.binanceTicket.getDesc())) {
-            binanceSocket();
+            binanceTicketSocket();
         }
     }
 
 
     @Override
-    public void getWebSocketData() {
-        huobiSocket();
-        okWebSocket();
-        binanceSocket();
+    public void getTicketSocketData() {
+        huobiTicketSocket();
+        okTicketSocket();
+        binanceTicketSocket();
     }
 
-    private void huobiSocket() {
+    @Override
+    public void getKlineSocketData() {
+        huobiKlineSocket();
+        okKlineSocket();
+        binanceKlineSocket();
+    }
+
+
+    private void huobiKlineSocket() {
+        String from = ExchangeEnum.huobiTicket.getDesc();
+        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
+        subscriptionOptions.setUri(BaseUrl.huobiSocket);
+        subscriptionOptions.setFromExchangeName(from);
+        subscriptionOptions.setFromTaskName("kline");
+        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
+        String symbols = String.join(",", Symbol.getSymbols(from));
+        subscriptionClient.subscribeCandlestickHuobiEvent(symbols, CandlestickInterval.MIN1, (CandlestickEvent) ->
+                        handleKline(from, CandlestickEvent)
+                , wor -> handleError(from, wor));
+    }
+
+    private void huobiTicketSocket() {
         String from = ExchangeEnum.huobiTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
         subscriptionOptions.setUri(BaseUrl.huobiSocket);
@@ -136,7 +160,20 @@ public class RequsetDataImpl implements RequsetData {
                 , wor -> handleError(from, wor));
     }
 
-    private void okWebSocket() {
+    private void okKlineSocket() {
+        String from = ExchangeEnum.okTicket.getDesc();
+        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
+        subscriptionOptions.setUri(BaseUrl.okSocket);
+        subscriptionOptions.setFromExchangeName(from);
+        subscriptionOptions.setFromTaskName("kline");
+        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
+        String symbols = String.join(",", Symbol.getSymbols(from));
+        subscriptionClient.subscribeCandlestickOKEvent(symbols, (ticket) ->
+                        handleKline(from, ticket)
+                , wor -> handleError(from, wor));
+    }
+
+    private void okTicketSocket() {
         String from = ExchangeEnum.okTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
         subscriptionOptions.setUri(BaseUrl.okSocket);
@@ -148,14 +185,26 @@ public class RequsetDataImpl implements RequsetData {
                         handleTicket(from, socketType, ticket)
                 , wor -> handleError(from, wor));
     }
-
-    private void binanceSocket() {
+    private void binanceKlineSocket() {
         String from = ExchangeEnum.binanceTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        subscriptionOptions.setUri(BaseUrl.binanceSocket);
+        String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
+        subscriptionOptions.setUri(wsUrl);
+        subscriptionOptions.setFromExchangeName(from);
+        subscriptionOptions.setFromTaskName("kline");
+        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
+        subscriptionClient.subscribeCandlestickBinanceEvent((ticket) ->
+                        handleKline(from, ticket)
+                , wor -> handleError(from, wor));
+    }
+
+    private void binanceTicketSocket() {
+        String from = ExchangeEnum.binanceTicket.getDesc();
+        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
+        String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
+        subscriptionOptions.setUri(wsUrl);
         subscriptionOptions.setFromExchangeName(from);
         subscriptionOptions.setFromTaskName("ticket");
-        subscriptionOptions.setTagWs(Symbol.getSymbols(from));
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
         subscriptionClient.subscribeTickerBinanceEvent((ticket) ->
                         handleTicket(from, socketType, ticket)
@@ -165,6 +214,10 @@ public class RequsetDataImpl implements RequsetData {
     private void handleTicket(String from, String type, TickerDTO ticket) {
         log.info(" 来自" + from + "的" + type + ",请求,symbol:" + ticket.getSymbol() + "  时间" + ticket.getClose());
         saveDbData.insertList(ticket);
+    }
+    private void handleKline(String from, CandlestickEvent candlestickEvent){
+        log.info(" 来自" + from + "的,请求,symbol:" + candlestickEvent.getSymbol() + "  时间" + candlestickEvent.getTimestamp());
+
     }
 
     private void handleError(String from, ApiException wor) {

@@ -46,7 +46,11 @@ public class WebSocketWatchDog {
                     if(subscriptionOptions.getUri().toLowerCase().contains(BaseUrl.okSocket)){
                         connection.send("ping");
                     }
+                    if(subscriptionOptions.getUri().toLowerCase().contains(BaseUrl.binanceSocket)){
+                        connection.send("pong");
+                    }
                 }
+
             });
         }, t, t, TimeUnit.MILLISECONDS);
         Runtime.getRuntime().addShutdownHook(new Thread(exec::shutdown));
