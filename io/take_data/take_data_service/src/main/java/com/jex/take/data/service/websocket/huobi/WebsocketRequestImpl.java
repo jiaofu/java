@@ -72,7 +72,7 @@ public class WebsocketRequestImpl {
             request.name = "Candlestick for ok " + symbols + " ...";
         }
         request.connectionHandler = (connection) ->
-                connection.send(Channels.klineOkChannel(symbols));
+                connection.send(Channels.tickerOkChannel(symbols));
         request.jsonParser = (jsonWrapper) -> {
             String ch = jsonWrapper.getString("data");
             JSONArray jsonArray = JSONArray.parseArray(ch);
@@ -122,10 +122,11 @@ public class WebsocketRequestImpl {
                 new WebsocketRequest<>(subscriptionListener, errorHandler);
 
         request.connectionHandler = null;
-        request.jsonParser = (jsonWrapper) -> {
+        request.jsonParser = (jsonBinance) -> {
             CandlestickEvent candlestickEvent = new CandlestickEvent();
 
 
+           JsonWrapper  jsonWrapper  = jsonBinance.getJsonObject("data");
             candlestickEvent.setTimestamp(  jsonWrapper.getLong("E"));
             candlestickEvent.setSymbol(jsonWrapper.getString("s"));
             candlestickEvent.setInterval(CandlestickInterval.MIN1);
@@ -159,7 +160,7 @@ public class WebsocketRequestImpl {
             request.name = "Candlestick for ok " + symbols + " ...";
         }
         request.connectionHandler = (connection) ->
-                connection.send(Channels.tickerOkChannel(symbols));
+                connection.send(Channels.klineOkChannel(symbols));
         request.jsonParser = (jsonWrapper) -> {
             CandlestickEvent candlestickEvent = new CandlestickEvent();
             String ch = jsonWrapper.getString("data");

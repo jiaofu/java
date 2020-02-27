@@ -1,6 +1,8 @@
 package com.jex.take.data.cron.job;
 
+import com.jex.take.data.service.control.RequestKlineData;
 import com.jex.take.data.service.control.RequsetTicketData;
+import com.jex.take.data.service.control.SaveKlineData;
 import com.jex.take.data.service.control.SaveTicketData;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
@@ -15,15 +17,13 @@ import java.io.Serializable;
 @Service
 public class KlineJob  implements Job, Serializable {
     @Resource
-    RequsetTicketData requsetTicketData;
-    @Resource
-    SaveTicketData saveTicketData;
+    RequestKlineData requestKlineData;
+
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
-            requsetTicketData.getData();
+            requestKlineData.getData();
 
-            saveTicketData.checkList();
         }catch (Exception ex){
             log.error("出现异常情况",ex);
         }

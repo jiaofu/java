@@ -47,7 +47,7 @@ public class WebSocketWatchDog {
                         connection.send("ping");
                     }
                     if(subscriptionOptions.getUri().toLowerCase().contains(BaseUrl.binanceSocket)){
-                        connection.send("pong");
+                       // connection.send("pong");
                     }
                 }
 

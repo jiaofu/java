@@ -1,5 +1,6 @@
 package com.jex.take.data.cron.listener;
 
+import com.jex.take.data.cron.job.KlineJob;
 import com.jex.take.data.cron.job.PriceJob;
 import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class KlineHandleThread {
     public void init() throws Exception {
 
         JobDetail jobDetail = JobBuilder
-                .newJob(PriceJob.class)
+                .newJob(KlineJob.class)
                 .withIdentity("priceRebate", "rebate")
                 .build();
 

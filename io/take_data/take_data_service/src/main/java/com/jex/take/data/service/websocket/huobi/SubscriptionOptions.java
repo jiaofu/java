@@ -43,12 +43,7 @@ public class SubscriptionOptions {
      * @param uri The URI name like "wss://api.huobi.pro".
      */
     public void setUri(String uri) {
-        try {
-            URI u = new URI(uri);
-        } catch (Exception e) {
-            throw new ApiException(
-                    ApiException.INPUT_ERROR, "The URI is incorrect: " + e.getMessage());
-        }
+
         this.uri = uri;
     }
 

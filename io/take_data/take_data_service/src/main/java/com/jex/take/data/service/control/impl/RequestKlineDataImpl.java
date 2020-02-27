@@ -83,7 +83,7 @@ public class RequestKlineDataImpl implements RequestKlineData {
     private void binanceKlineSocket() {
         String from = ExchangeEnum.binanceTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
+        String wsUrl = Channels.klineBinanceChannel(Symbol.getSymbols(from));
         subscriptionOptions.setUri(wsUrl);
         subscriptionOptions.setFromExchangeName(from);
         subscriptionOptions.setFromTaskName("kline");

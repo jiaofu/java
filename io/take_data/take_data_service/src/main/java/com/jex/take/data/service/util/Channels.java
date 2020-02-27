@@ -74,7 +74,7 @@ public abstract class Channels {
         return subscribe;
     }
 
-    private static String ticketBinanceChannel(List<String> stringList){
+    public static String ticketBinanceChannel(List<String> stringList){
         // 组合查询 <symbol>@miniTicker
         StringBuilder wdString = new StringBuilder(BaseUrl.binanceSocket);
         wdString.append("/stream?streams=");

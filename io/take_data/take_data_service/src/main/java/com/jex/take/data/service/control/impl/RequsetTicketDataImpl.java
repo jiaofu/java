@@ -40,8 +40,8 @@ public class RequsetTicketDataImpl implements RequsetTicketData {
 
     @Override
     public void getData() {
-        huobiApi();
-        okApi();
+       // huobiApi();
+       // okApi();
         binanceApi();
     }
 
@@ -53,7 +53,7 @@ public class RequsetTicketDataImpl implements RequsetTicketData {
         if (work) {
             return;
         }
-        AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from+"_"+taskName);
+        AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from);
         asyncRequestClient.getHuobiTickers(callBack -> filteSymbol(callBack, from));
 
     }
@@ -99,7 +99,7 @@ public class RequsetTicketDataImpl implements RequsetTicketData {
     }
 
     private Boolean webSocketIsWork(String from) {
-       WebSocketConnection webSocketConnection = CacheMemory.socketMap.get(from);
+       WebSocketConnection webSocketConnection = CacheMemory.socketMap.get(from+"_"+taskName);
         long now = System.currentTimeMillis();
         if (webSocketConnection != null && webSocketConnection.getState() == ConnectionState.CONNECTED && (webSocketConnection.getLastReceivedTime() + interval) > now) {
             return true;
@@ -162,7 +162,7 @@ public class RequsetTicketDataImpl implements RequsetTicketData {
     private void binanceTicketSocket() {
         String from = ExchangeEnum.binanceTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
+        String wsUrl = Channels.ticketBinanceChannel(Symbol.getSymbols(from));
         subscriptionOptions.setUri(wsUrl);
         subscriptionOptions.setFromExchangeName(from);
         subscriptionOptions.setFromTaskName(taskName);
