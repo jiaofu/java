@@ -3,7 +3,6 @@ package com.jex.take.data.cron.job;
 import com.jex.take.data.service.control.RequsetTicketData;
 import com.jex.take.data.service.control.SaveTicketData;
 import lombok.extern.slf4j.Slf4j;
-import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -14,9 +13,7 @@ import java.io.Serializable;
 
 @Slf4j
 @Service
-@DisallowConcurrentExecution
-public class PriceJob  implements Job, Serializable {
-
+public class KlineJob  implements Job, Serializable {
     @Resource
     RequsetTicketData requsetTicketData;
     @Resource
@@ -28,9 +25,10 @@ public class PriceJob  implements Job, Serializable {
 
             saveTicketData.checkList();
         }catch (Exception ex){
-          log.error("出现异常情况",ex);
+            log.error("出现异常情况",ex);
         }
 
 
     }
+
 }

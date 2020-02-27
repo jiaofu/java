@@ -11,11 +11,11 @@ import javax.annotation.Resource;
 import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 
 @Service
-public class PriceHandleThread {
+public class KlineHandleThread {
     @Resource
     private Scheduler scheduler;
 
-    //@PostConstruct
+    @PostConstruct
     public void init() throws Exception {
 
         JobDetail jobDetail = JobBuilder

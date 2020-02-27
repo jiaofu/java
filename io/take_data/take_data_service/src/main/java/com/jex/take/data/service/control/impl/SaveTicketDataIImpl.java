@@ -33,6 +33,7 @@ public class SaveTicketDataIImpl implements SaveTicketData {
 
     }
 
+    @Override
     public void checkList() {
         if (queus.size() >= limitSize || lastInsert + limitSecond < System.currentTimeMillis()) {
             int count = queus.size() > limitSize ? limitSize : queus.size();

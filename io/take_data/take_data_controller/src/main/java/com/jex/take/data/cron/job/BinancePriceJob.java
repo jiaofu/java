@@ -45,7 +45,7 @@ public class BinancePriceJob implements Job, Serializable {
         List<String> list = new ArrayList<>();
         list.add("BTCUSDT");
         list.add("ETHUSDT");
-        subscriptionOptions.setTagWs(list);
+
         subscriptionOptions.setUri(BaseUrl.binanceSocket);
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
 

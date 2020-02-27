@@ -3,7 +3,7 @@ package com.jex.take.data.service.control.impl;
 
 import com.jex.take.data.service.client.AsyncRequestClient;
 import com.jex.take.data.service.control.CacheMemory;
-import com.jex.take.data.service.control.RequsetData;
+import com.jex.take.data.service.control.RequsetTicketData;
 import com.jex.take.data.service.control.SaveTicketData;
 import com.jex.take.data.service.control.Symbol;
 import com.jex.take.data.service.dto.TickerDTO;
@@ -27,17 +27,19 @@ import java.util.Map;
 
 @Service
 @Slf4j
-public class RequsetDataImpl implements RequsetData {
+public class RequsetTicketDataImpl implements RequsetTicketData {
 
     private final static String socketType = "websocket";
     private final static String apiType = "api";
     private final static long interval = 60 * 1000;
 
+    private final  static String taskName = "ticket";
+
     @Resource
     SaveTicketData saveTicketData;
 
     @Override
-    public void getApiData() {
+    public void getData() {
         huobiApi();
         okApi();
         binanceApi();
@@ -51,7 +53,7 @@ public class RequsetDataImpl implements RequsetData {
         if (work) {
             return;
         }
-        AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from);
+        AsyncRequestClient asyncRequestClient = CacheMemory.apiMap.get(from+"_"+taskName);
         asyncRequestClient.getHuobiTickers(callBack -> filteSymbol(callBack, from));
 
     }
@@ -122,40 +124,18 @@ public class RequsetDataImpl implements RequsetData {
     }
 
 
-    @Override
-    public void getTicketSocketData() {
-        huobiTicketSocket();
-        okTicketSocket();
-        binanceTicketSocket();
-    }
-
-    @Override
-    public void getKlineSocketData() {
-        huobiKlineSocket();
-        okKlineSocket();
-        binanceKlineSocket();
-    }
 
 
-    private void huobiKlineSocket() {
-        String from = ExchangeEnum.huobiTicket.getDesc();
-        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        subscriptionOptions.setUri(BaseUrl.huobiSocket);
-        subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("kline");
-        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
-        String symbols = String.join(",", Symbol.getSymbols(from));
-        subscriptionClient.subscribeCandlestickHuobiEvent(symbols, CandlestickInterval.MIN1, (CandlestickEvent) ->
-                        handleKline(from, CandlestickEvent)
-                , wor -> handleError(from, wor));
-    }
+
+
+
 
     private void huobiTicketSocket() {
         String from = ExchangeEnum.huobiTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
         subscriptionOptions.setUri(BaseUrl.huobiSocket);
         subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("ticket");
+        subscriptionOptions.setFromTaskName(taskName);
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
         String symbols = String.join(",", Symbol.getSymbols(from));
         subscriptionClient.subscribeTickerHuobiEvent(symbols, CandlestickInterval.MIN1, (ticket) ->
@@ -163,43 +143,21 @@ public class RequsetDataImpl implements RequsetData {
                 , wor -> handleError(from, wor));
     }
 
-    private void okKlineSocket() {
-        String from = ExchangeEnum.okTicket.getDesc();
-        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        subscriptionOptions.setUri(BaseUrl.okSocket);
-        subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("kline");
-        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
-        String symbols = String.join(",", Symbol.getSymbols(from));
-        subscriptionClient.subscribeCandlestickOKEvent(symbols, (ticket) ->
-                        handleKline(from, ticket)
-                , wor -> handleError(from, wor));
-    }
+
 
     private void okTicketSocket() {
         String from = ExchangeEnum.okTicket.getDesc();
         SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
         subscriptionOptions.setUri(BaseUrl.okSocket);
         subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("ticket");
+        subscriptionOptions.setFromTaskName(taskName);
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
         String symbols = String.join(",", Symbol.getSymbols(from));
         subscriptionClient.subscribeTickerOkEvent(symbols, (ticket) ->
                         handleTicket(from, socketType, ticket)
                 , wor -> handleError(from, wor));
     }
-    private void binanceKlineSocket() {
-        String from = ExchangeEnum.binanceTicket.getDesc();
-        SubscriptionOptions subscriptionOptions = new SubscriptionOptions();
-        String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
-        subscriptionOptions.setUri(wsUrl);
-        subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("kline");
-        SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
-        subscriptionClient.subscribeCandlestickBinanceEvent((ticket) ->
-                        handleKline(from, ticket)
-                , wor -> handleError(from, wor));
-    }
+
 
     private void binanceTicketSocket() {
         String from = ExchangeEnum.binanceTicket.getDesc();
@@ -207,7 +165,7 @@ public class RequsetDataImpl implements RequsetData {
         String wsUrl = Channels.tickerOkChannel(Symbol.getSymbols(from));
         subscriptionOptions.setUri(wsUrl);
         subscriptionOptions.setFromExchangeName(from);
-        subscriptionOptions.setFromTaskName("ticket");
+        subscriptionOptions.setFromTaskName(taskName);
         SubscriptionClient subscriptionClient = SubscriptionClient.create(subscriptionOptions);
         subscriptionClient.subscribeTickerBinanceEvent((ticket) ->
                         handleTicket(from, socketType, ticket)
